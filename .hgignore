@@ -1,0 +1,11 @@
+syntax: glob
+
+*.exe
+*.dll
+*.lib
+*.pdb
+build
+
+
+syntax: regexp
+^build/
