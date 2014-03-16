@@ -1,11 +1,20 @@
 #include <chrono>
 #include <boost/test/unit_test.hpp>
-#include <boost/chrono/duration.hpp>
-#include <boost/thread/thread.hpp>
 #include "meter.hpp"
+namespace mock{
+	static int time = 0;
+	class mock_clock {
+	public:
+		typedef std::chrono::seconds duration ;
+		typedef std::chrono::time_point<mock_clock> time_point;
+		time_point now(){
+			return time_point(duration(time));
+		}
+	};
+}
 
 BOOST_AUTO_TEST_CASE(meter_counting_test){
-	meter<> m;
+	meter m;
 	BOOST_CHECK_EQUAL(m.count(),0);
 
 	// test mark by 1, by n
@@ -18,19 +27,16 @@ BOOST_AUTO_TEST_CASE(meter_counting_test){
 }
 
 BOOST_AUTO_TEST_CASE(meter_rate_test){
-	// TODO: redo this to take a mock clock
-	// this was fun but obviously nuts
-	meter<> m;
+	clocked_meter<mock::mock_clock> m;
+	mock::time = 1;
 	BOOST_CHECK_EQUAL(m.mean_rate(),0);
 
-	boost::this_thread::sleep_for(boost::chrono::duration_cast<boost::chrono::nanoseconds>(boost::chrono::milliseconds(20)));
+	mock::time = 5;
 	m.mark();
-	BOOST_CHECK_CLOSE(m.mean_rate(),50,1);
+	BOOST_CHECK_CLOSE(m.mean_rate(),0.2,1e-8);
 
 
-	boost::this_thread::sleep_for(boost::chrono::duration_cast<boost::chrono::nanoseconds>(boost::chrono::milliseconds(20)));
-	m.mark(50);
-	BOOST_CHECK_CLOSE(m.mean_rate(),51*(1.0f/0.04f),1*(1.0f/0.04f));
-
-
+	mock::time = 100;
+	m.mark(99);
+	BOOST_CHECK_CLOSE(m.mean_rate(),1,1e-8);
 }
