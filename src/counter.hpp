@@ -3,22 +3,22 @@
 class counter {
 public:
 	counter() 
-		: count(std::make_shared<std::atomic<unsigned int>>(0))
+		: m_count(0)
 	{
 
 	}
 
 	void increment(const int& val = 1){
-		(*count)+= val;
+		m_count+= val;
 	}
 
 	void decrement(const int& val = 1){
-		(*count)-= val;		
+		m_count-= val;		
 	}
 
-	unsigned int value(){
-		return (unsigned int) *count;
+	unsigned int count(){
+		return (unsigned int) m_count;
 	}
 private:
-	std::shared_ptr<std::atomic<unsigned int>> count ;
+	std::atomic<unsigned int> m_count ;
 };
