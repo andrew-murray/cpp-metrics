@@ -5,7 +5,7 @@
 #include "meter.hpp"
 
 BOOST_AUTO_TEST_CASE(meter_counting_test){
-	meter m;
+	meter<> m;
 	BOOST_CHECK_EQUAL(m.count(),0);
 
 	// test mark by 1, by n
@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(meter_counting_test){
 BOOST_AUTO_TEST_CASE(meter_rate_test){
 	// TODO: redo this to take a mock clock
 	// this was fun but obviously nuts
-	meter m;
+	meter<> m;
 	BOOST_CHECK_EQUAL(m.mean_rate(),0);
 
 	boost::this_thread::sleep_for(boost::chrono::duration_cast<boost::chrono::nanoseconds>(boost::chrono::milliseconds(20)));

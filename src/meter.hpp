@@ -2,10 +2,11 @@
 #include <chrono>
 #include <iostream>
 
+template<typename ClockType = std::chrono::high_resolution_clock>
 class meter {
 public:
-	typedef std::chrono::high_resolution_clock::time_point time_point;
-	typedef std::chrono::high_resolution_clock::duration duration;
+	typedef typename ClockType::time_point time_point;
+	typedef typename ClockType::duration duration;
 
 	meter()
 	: m_count(0),
@@ -30,6 +31,6 @@ public:
 	}
 private:
 	std::atomic<unsigned int> m_count;
-	std::chrono::high_resolution_clock m_timer;
+	ClockType m_timer;
 	time_point m_start_time;
 };
