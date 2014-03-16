@@ -3,10 +3,10 @@
 #include "meter.hpp"
 namespace mock{
 	static int time = 0;
-	class mock_clock {
+	class clock {
 	public:
 		typedef std::chrono::seconds duration ;
-		typedef std::chrono::time_point<mock_clock> time_point;
+		typedef std::chrono::time_point<clock> time_point;
 		time_point now(){
 			return time_point(duration(time));
 		}
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(meter_counting_test){
 }
 
 BOOST_AUTO_TEST_CASE(meter_rate_test){
-	clocked_meter<mock::mock_clock> m;
+	clocked_meter<mock::clock> m;
 	mock::time = 1;
 	BOOST_CHECK_EQUAL(m.mean_rate(),0);
 
