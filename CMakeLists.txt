@@ -3,7 +3,9 @@ project (cpp_metrics)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -g")
 
-FIND_PACKAGE( Boost REQUIRED )
+set(Boost_USE_MULTITHREADED ON)
+find_package(Boost COMPONENTS system unit_test_framework REQUIRED)
+
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
 AUX_SOURCE_DIRECTORY(src METRICS_SRC)
@@ -14,7 +16,6 @@ AUX_SOURCE_DIRECTORY(test METRICS_TEST)
 ADD_LIBRARY(metrics ${METRICS_SRC})
 INCLUDE_DIRECTORIES(src)
 ADD_EXECUTABLE(unittest ${METRICS_TEST})
-
-TARGET_LINK_LIBRARIES(unittest ${Boost_LIBRARIES} )
-TARGET_LINK_LIBRARIES(unittest ${Boost_LIBRARIES} )
-TARGET_LINK_LIBRARIES(unittest ${Boost_LIBRARIES} )
+TARGET_LINK_LIBRARIES(unittest
+                      ${Boost_SYSTEM_LIBRARY}
+                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
