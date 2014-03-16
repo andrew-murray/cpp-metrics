@@ -1,38 +1,36 @@
 #include "counter.hpp"
-#include "timer.hpp"
 #include "gauge.hpp"
+#include "meter.hpp"
 #include <map>
 
 class registry {
-	counter& counter(const std::string& name){
+public:
+	registry(const registry&) = delete;
+	registry(const registry&&) = delete;
+	registry& operator = (const registry&) = delete;
+	registry& operator = (const registry&&) = delete;
+
+	counter& get_counter(const std::string& name){
 		auto it = m_counters.find(name);
 		if(it!=m_counters.end()){
 			return it->second;
 		} else {
-			m_counters[name] = 0;
-			return m_counters[name].second;
+			m_counters[name] = counter();
+			return m_counters[name];
 		}
 	}
 
-	void increment_count(const std::string& name){
-		auto it = m_counters.find(name);
-		if(it!=m_counters.end()){
-			++(it->second);
-		} else {
-			m_counters[name] = 1;
-		}
+	void increment_count(const std::string& name,const int& val = 1){
+		auto& current_counter = get_counter(name);
+		current_counter.increment(val);
 	}
 
-	void decrement_count(const std::string& name){
-		auto it = m_counters.find(name);
-		if(it!=m_counters.end()){
-			++(it->second);
-		} else {
-			throw std::invalid_argument("name not found.")
-		}
+	void decrement_count(const std::string& name,const int& val = 1){
+		auto& current_counter = get_counter(name);
+		current_counter.decrement(val);
 	}
-
-	std::map<std::string, timer> m_timers;
-	std::map<std::string, gauge> m_gauges;
-	std::map<std::string,counter> m_counters;
+private:
+	std::map<const std::string, gauge> m_gauges;
+	std::map<const std::string, counter> m_counters;
+	std::map<const std::string, meter> m_meters;
 };

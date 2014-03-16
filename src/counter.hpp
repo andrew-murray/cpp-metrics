@@ -1,24 +1,25 @@
 #include <atomic>
+#include <memory>
 
 class counter {
 public:
 	counter() 
-		: m_count(0)
+		: m_count(std::make_shared<std::atomic<unsigned int>>(0))
 	{
 
 	}
 
 	void increment(const int& val = 1){
-		m_count+= val;
+		(*m_count)+= val;
 	}
 
 	void decrement(const int& val = 1){
-		m_count-= val;		
+		(*m_count)-= val;		
 	}
 
 	unsigned int count(){
-		return (unsigned int) m_count;
+		return (unsigned int) *m_count;
 	}
 private:
-	std::atomic<unsigned int> m_count ;
+	std::shared_ptr<std::atomic<unsigned int>> m_count ;
 };
