@@ -10,25 +10,29 @@ public:
 	registry& operator = (const registry&) = delete;
 	registry& operator = (const registry&&) = delete;
 
-	counter& get_counter(const std::string& name){
-		auto it = m_counters.find(name);
-		if(it!=m_counters.end()){
+	template<typename T>
+	T& get_or_add_object(const std::string& name,std::map<const std::string, T> objects){
+		auto it = objects.find(name);
+		if(it!=objects.end()){
 			return it->second;
 		} else {
-			m_counters[name] = counter();
-			return m_counters[name];
+			objects[name] = T();
+			return objects[name];
 		}
 	}
 
-	void increment_count(const std::string& name,const int& val = 1){
-		auto& current_counter = get_counter(name);
-		current_counter.increment(val);
+	counter& get_counter(const std::string& name){
+		return get_or_add_object(name,m_counters);
 	}
 
-	void decrement_count(const std::string& name,const int& val = 1){
-		auto& current_counter = get_counter(name);
-		current_counter.decrement(val);
+	gauge& get_gauge(const std::string& name){
+		return get_or_add_object(name,m_gauges);
 	}
+
+	meter& get_meter(const std::string& name){
+		return get_or_add_object(name,m_meters);
+	}
+
 private:
 	std::map<const std::string, gauge> m_gauges;
 	std::map<const std::string, counter> m_counters;
