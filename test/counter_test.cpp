@@ -2,7 +2,7 @@
 #include "counter.hpp"
 
 BOOST_AUTO_TEST_CASE(counter_test){
-	counter c;
+	metrics::instruments::counter c;
 	BOOST_CHECK_EQUAL(c.count(),0);
 
 	// test default increment

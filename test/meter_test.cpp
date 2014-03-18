@@ -14,7 +14,7 @@ namespace mock{
 }
 
 BOOST_AUTO_TEST_CASE(meter_counting_test){
-	meter m;
+	metrics::instruments::meter m;
 	BOOST_CHECK_EQUAL(m.count(),0);
 
 	// test mark by 1, by n
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(meter_counting_test){
 }
 
 BOOST_AUTO_TEST_CASE(meter_rate_test){
-	clocked_meter<mock::clock> m;
+	metrics::instruments::clocked_meter<mock::clock> m;
 	mock::time = 1;
 	BOOST_CHECK_EQUAL(m.mean_rate(),0);
 
