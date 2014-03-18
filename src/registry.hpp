@@ -14,22 +14,17 @@ namespace metrics {
 
 		registry(){}
 		template<typename T>
-		T& get_or_add_object(const std::string& name,std::map<const std::string, T> objects){
-			auto it = objects.find(name);
-			if(it!=objects.end()){
-				return it->second;
-			} else {
-				objects[name] = T();
-				return objects[name];
-			}
+		T& get_or_add_object(const std::string& name,std::map<const std::string, T>&  objects){
+			return objects[name];
 		}
 
 		instruments::counter& counter(const std::string& name){
 			return get_or_add_object(name,m_counters);
 		}
 
-		instruments::gauge& gauge(const std::string& name){
-			return get_or_add_object(name,m_gauges);
+		template<typename T>
+		instruments::gauge& gauge(const std::string& name,const std::function<T(void)>& func){
+			return m_gauges.emplace(name,func).first->second;
 		}
 
 		instruments::meter& meter(const std::string& name){

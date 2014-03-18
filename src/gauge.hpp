@@ -5,7 +5,7 @@ namespace metrics {
 	namespace instruments {
 		class gauge {
 		public:
-			gauge() : m_callable(std::make_shared<bool>(false)){};
+			//gauge() : m_callable(std::make_shared<bool>(false)){};
 
 			template<typename T> 
 			void initialize(const std::function<T(void)> measure){
@@ -18,7 +18,7 @@ namespace metrics {
 			}
 
 			template<typename T>
-			gauge(const std::function<T(void)> measure)
+			gauge(const std::function<T(void)>& measure)
 				: m_measure([&](){return (double) measure();}),
 				  m_callable(std::make_shared<bool>(true))
 			{

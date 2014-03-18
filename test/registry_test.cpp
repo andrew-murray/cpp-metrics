@@ -49,11 +49,8 @@ BOOST_AUTO_TEST_CASE(registry_gauge_test){
 	std::function<int(void)> callable([&value](){return value;});
 
 	// test the counter registry supplies works
-	auto& simple_gauge = reg.gauge("simple.gauge.test");
-	auto& gauge_2 = reg.gauge("simple.gauge.test");
+	auto& simple_gauge = reg.gauge("simple.gauge.test",callable);
 	BOOST_CHECK_EQUAL(simple_gauge.get_valid(),false);
-	BOOST_CHECK_EQUAL(gauge_2.get_valid(),false);
-	simple_gauge.initialize(callable);
 /*
 	auto& gauge_3 = reg.get_gauge("simple.gauge.test");
 	BOOST_CHECK_EQUAL(simple_gauge.get_valid(),true);
