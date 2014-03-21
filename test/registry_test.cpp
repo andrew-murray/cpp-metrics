@@ -50,28 +50,9 @@ BOOST_AUTO_TEST_CASE(registry_gauge_test){
 
 	// test the counter registry supplies works
 	auto& simple_gauge = reg.gauge("simple.gauge.test",callable);
-	BOOST_CHECK_EQUAL(simple_gauge.get_valid(),false);
-/*
-	auto& gauge_3 = reg.get_gauge("simple.gauge.test");
-	BOOST_CHECK_EQUAL(simple_gauge.get_valid(),true);
-	BOOST_CHECK_EQUAL(gauge_2.get_valid(),true);
-	BOOST_CHECK_EQUAL(gauge_3.get_valid(),true);
-
 	BOOST_CHECK_EQUAL(simple_gauge.get_value(),value);
-	BOOST_CHECK_EQUAL(gauge_2.get_value(),value);
-	BOOST_CHECK_EQUAL(gauge_3.get_value(),value);
-
-	value = 7;
-
+	value = -115;
 	BOOST_CHECK_EQUAL(simple_gauge.get_value(),value);
-	BOOST_CHECK_EQUAL(gauge_2.get_value(),value);
-	BOOST_CHECK_EQUAL(gauge_3.get_value(),value);
-
-
-	// test the counter registry supplies works
-	auto& default_gauge = reg.get_gauge("simple.gauge.other");
-	BOOST_CHECK_EQUAL(default_gauge.get_valid(),false);
-*/
 }
 
 
