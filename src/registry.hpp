@@ -13,13 +13,9 @@ namespace metrics {
 		registry& operator = (const registry&&) = delete;
 
 		registry(){}
-		template<typename T>
-		T& get_or_add_object(const std::string& name,std::map<const std::string, T>&  objects){
-			return objects[name];
-		}
 
 		instruments::counter& counter(const std::string& name){
-			return get_or_add_object(name,m_counters);
+			return m_counters[name];
 		}
 
 		template<typename T>
@@ -28,7 +24,7 @@ namespace metrics {
 		}
 
 		instruments::meter& meter(const std::string& name){
-			return get_or_add_object(name,m_meters);
+			return m_meters[name];
 		}
 
 	private:
