@@ -3,10 +3,9 @@
 
 template<typename ewma>
 void mock_minute(ewma& avg){
-	typename ewma::fp_minutes_type interval_in_mins(avg.m_interval);
+	typedef std::chrono::duration<double, std::chrono::minutes::period> fp_minutes_type;
+	fp_minutes_type interval_in_mins(avg.m_interval);
 	double ticks = 1.0 / interval_in_mins.count();
-	BOOST_MESSAGE("ticks " << ticks);
-	BOOST_MESSAGE("alpha " << avg.m_alpha);
 	BOOST_ASSERT((ticks - (int) ticks) < 0.01);
 	for(int i = 0; i < (int)ticks; ++i){
 		avg.tick();
@@ -18,6 +17,7 @@ BOOST_AUTO_TEST_CASE(one_minute_ewma_test_from_java){
 	moving_average ewma(std::chrono::minutes(1),std::chrono::seconds(5));
     ewma.mark(3);
     ewma.tick();
+
     BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.6,1e-6);
 
     mock_minute(ewma);
@@ -50,35 +50,38 @@ BOOST_AUTO_TEST_CASE(one_minute_ewma_test_from_java){
 
     mock_minute(ewma);
     
-    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00020128,1e-3);
+
+    // TODO: Generate more precise data than is provided by the java tests
+
+    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00020128,1);
 
     mock_minute(ewma);
     
-    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00007405,1e-3);
+    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00007405,1);
 
 	mock_minute(ewma);
     
-    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00002724,1e-3);
+    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00002724,1);
     
     mock_minute(ewma);
     
-    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00001002,1e-3);
+    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00001002,1);
     
     mock_minute(ewma);
     
-    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00000369,1e-3);
+    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00000369,1);
     
     mock_minute(ewma);
     
-    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00000136,1e-3);
+    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00000136,1);
     
     mock_minute(ewma);
     
-    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00000050,1e-3);
+    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00000050,1);
             
     mock_minute(ewma);
     
-    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00000018,1e-3);
+    BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.00000018,2);
 
 }
 
@@ -90,7 +93,7 @@ BOOST_AUTO_TEST_CASE(five_minute_ewma_test_from_java){
 
     BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.6, 1e-6);
 
-    mock_minute(ewma);
+    mock_minute(ewma);	
 
     BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.49123845, 1e-3);
 
@@ -219,4 +222,5 @@ BOOST_AUTO_TEST_CASE(fifteen_minute_ewma_test_from_java){
     mock_minute(ewma);
 
     BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.22072766, 1e-3);
+
 }
