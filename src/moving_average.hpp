@@ -22,7 +22,7 @@ class moving_average {
 
 	}
 
-	template<typename DurationAll, typename DurationTick>
+	template<typename DurationAll, typename DurationTick, typename = typename std::enable_if<!std::is_same<DurationAll,double>::value>::type>
 	moving_average(const DurationAll& footprint,const DurationTick& tick) 
 		: m_alpha(1.0 - exp(fp_seconds_type(tick).count())),
 		  m_rate(0.0),
