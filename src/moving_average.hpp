@@ -52,6 +52,10 @@ public:
         return m_rate * (double) std::chrono::duration_cast<time_type>(unit).count();
     }
 
+    time_type interval(){
+    	return m_interval;
+    }
+private:
 	double m_alpha;
 	bool m_first;
 	double m_rate;

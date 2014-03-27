@@ -4,7 +4,7 @@
 template<typename ewma>
 void mock_minute(ewma& avg){
 	typedef std::chrono::duration<double, std::chrono::minutes::period> fp_minutes_type;
-	fp_minutes_type interval_in_mins(avg.m_interval);
+	fp_minutes_type interval_in_mins(avg.interval());
 	double ticks = 1.0 / interval_in_mins.count();
 	BOOST_ASSERT((ticks - (int) ticks) < 0.01);
 	for(int i = 0; i < (int)ticks; ++i){
