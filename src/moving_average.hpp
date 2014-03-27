@@ -9,6 +9,8 @@ class moving_average {
 
 	typedef std::chrono::duration<double, std::chrono::nanoseconds::period> time_type;
 
+	typedef std::chrono::duration<double, std::chrono::minutes::period> fp_minutes_type;
+
 	template<typename Duration>
 	moving_average(const double& alpha,const Duration dur) 
 		: m_alpha(alpha),
@@ -16,6 +18,17 @@ class moving_average {
 		  m_first(true),
 		  m_uncounted(0),
 		  m_interval(std::chrono::duration_cast<time_type>(dur))
+	{
+
+	}
+
+	template<typename DurationAll, typename DurationTick>
+	moving_average(const DurationAll& footprint,const DurationTick& tick) 
+		: m_alpha(1.0 - exp(fp_seconds_type(tick).count())),
+		  m_rate(0.0),
+		  m_first(true),
+		  m_uncounted(0),
+		  m_interval(std::chrono::duration_cast<time_type>(tick))
 	{
 
 	}
@@ -39,5 +52,6 @@ class moving_average {
 	unsigned int m_uncounted;
 	time_type m_interval;
 };
+
 
 
