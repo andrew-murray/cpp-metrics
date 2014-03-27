@@ -34,8 +34,7 @@ class moving_average {
 	}
 
 	void tick(){
-		unsigned int count = m_uncounted;
-		m_uncounted = 0;
+		unsigned int count = m_uncounted.exchange(0);
 		double recent_rate = count / (double)m_interval.count();
 		if(m_first){
 			m_first = false;
@@ -46,10 +45,19 @@ class moving_average {
 		}
 	}
 
+	void mark(unsigned int n = 1){
+		m_uncounted+=n;
+	}
+
+	template<typename Duration = std::chrono::minutes>
+    double rate(const Duration& unit = std::chrono::minutes(1)) {
+        return m_rate * (double) std::chrono::duration_cast<time_type>(unit).count();
+    }
+
 	double m_alpha;
 	bool m_first;
 	double m_rate;
-	unsigned int m_uncounted;
+	std::atomic<unsigned int> m_uncounted;
 	time_type m_interval;
 };
 
