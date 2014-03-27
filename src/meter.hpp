@@ -1,5 +1,6 @@
 #include <atomic>
 #include <chrono>
+#include "moving_average.hpp"
 
 namespace metrics {
 	namespace instruments {
