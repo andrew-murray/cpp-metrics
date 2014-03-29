@@ -89,25 +89,23 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 
 	BOOST_CHECK_EQUAL(m.count(),10);
 	BOOST_CHECK_EQUAL(m.mean_rate(),10 / mock::time);
-	BOOST_CHECK_EQUAL(m.one_minute_rate(),3);
-	//BOOST_CHECK_EQUAL(m.five_minute_rate(),3);
-	//BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),3);
-#if 0
+	//BOOST_CHECK_EQUAL(m.one_minute_rate(),0);
+	//BOOST_CHECK_EQUAL(m.five_minute_rate(),0);
+	//BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),0);
+
 	mock::time = 5;
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-	BOOST_CHECK_EQUAL(m.mean_rate(),12);
-	///BOOST_CHECK_EQUAL(m.one_minute_rate(),12);
-	//BOOST_CHECK_EQUAL(m.five_minute_rate(),12);
-	//BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),12);
-#endif
+	BOOST_CHECK_EQUAL(m.count(),40);
+	BOOST_CHECK_EQUAL(m.one_minute_rate(),40 / (60 / mock::time));
+	BOOST_CHECK_EQUAL(m.five_minute_rate(),40 / (60 * 5 /mock::time) );
+	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),40 / (60 * 15 /mock::time));
+
 	terminate = true;
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	marker_0.join();
 	marker_1.join();
-	std::cout << m.count() << ',' << m.mean_rate() << std::endl;
-	std::cout << "rate numbers" << std::endl;
 }

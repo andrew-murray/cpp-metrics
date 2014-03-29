@@ -1,6 +1,7 @@
 #include <atomic>
 #include <chrono>
 #include "moving_average.hpp"
+#include <iostream>
 
 namespace metrics {
 	namespace instruments {
@@ -32,6 +33,9 @@ namespace metrics {
 			void mark(const int& val = 1){
 				tick_if_needed();
 				*m_count += val;
+				m_one_minute_tracker->mark(val);
+				m_five_minute_tracker->mark(val);
+				m_fifteen_minute_tracker->mark(val);
 			}
 
 			double mean_rate(){
@@ -63,12 +67,22 @@ namespace metrics {
 				ns previous = *m_last_tick;
 				ns now = std::chrono::duration_cast<ns>(m_timer.now().time_since_epoch());
 				ns age = now - previous;
+				//std::cout << "tick interval " << std::chrono::duration_cast<ns>(interval).count() << std::endl;
+				//std::cout << "age " << age.count() << std::endl; 
 				if(age > std::chrono::duration_cast<ns>(interval)){
-					ns last_tick = previous + age % interval;
+					ns last_tick = previous + age - (age % interval);
+					std::cout << "ticking " << std::endl;
+					std::cout << "prev : " << previous << std::endl;
+					std::cout << "last_tick" << last_tick << std::endl;
 					if(m_last_tick->compare_exchange_strong(previous,last_tick)){
+						std::cout << "really ticking" << std::endl;
+						std::cout << "before cast" << (last_tick - previous).count() << std::endl;
 						auto ticks = std::chrono::duration_cast<decltype(interval)>(last_tick-previous);
+						std::cout << "calculated ticks" << ticks.count() << std::endl;
 						for(int i = 0; i < ticks.count();++i){
+							std::cout << "t" << std::endl;
 							m_one_minute_tracker->tick();
+							std::cout << m_one_minute_tracker->rate()  << "1MR" << std::endl;
 							m_five_minute_tracker->tick();
 							m_fifteen_minute_tracker->tick();
 						}
