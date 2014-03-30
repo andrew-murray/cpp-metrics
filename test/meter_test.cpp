@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(meter_ticker_test){
 
 
 BOOST_AUTO_TEST_CASE(meter_ewma_test){
-#if 0
+
 	mock::time = 0;
 	metrics::instruments::clocked_meter<mock::clock> m;
 	// mean_rate returns nan
@@ -251,18 +251,20 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 
 	BOOST_CHECK_EQUAL(m.count(),10);
 	BOOST_CHECK_EQUAL(m.mean_rate(),10 / mock::time);
-	//BOOST_CHECK_EQUAL(m.one_minute_rate(),0);
-	//BOOST_CHECK_EQUAL(m.five_minute_rate(),0);
-	//BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),0);
+	BOOST_CHECK_EQUAL(m.one_minute_rate(),0);
+	BOOST_CHECK_EQUAL(m.five_minute_rate(),0);
+	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),0);
+
 
 	mock::time = 5;
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	BOOST_CHECK_EQUAL(m.count(),40);
-	BOOST_CHECK_EQUAL(m.one_minute_rate(),40 / (60 / mock::time));
-	BOOST_CHECK_EQUAL(m.five_minute_rate(),40 / (60 * 5 /mock::time) );
-	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),40 / (60 * 15 /mock::time));
+	BOOST_CHECK_EQUAL(m.one_minute_rate(),(40 / mock::time) * 60);
+	BOOST_CHECK_EQUAL(m.five_minute_rate(),(40 / mock::time) * 60 * 5);
+	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),(40 / mock::time) * 60 * 15);
+
 
 	terminate = true;
 
@@ -270,5 +272,5 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 
 	marker_0.join();
 	marker_1.join();
-#endif
+
 }
