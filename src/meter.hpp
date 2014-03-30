@@ -6,7 +6,7 @@
 namespace metrics {
 	namespace instruments {
 
-		template<typename ClockType>
+		template<typename ClockType,typename AverageType = moving_average>
 		class clocked_meter {
 		public:
 			typedef typename ClockType::time_point time_point;
@@ -19,9 +19,9 @@ namespace metrics {
 			: m_count(std::make_shared<std::atomic<unsigned int>>(0)),
 			  m_start_time(m_timer.now()),
 			  m_last_tick(std::make_shared<std::atomic<ns>>(std::chrono::duration_cast<ns>(m_start_time.time_since_epoch()))),
-			  m_one_minute_tracker(std::make_shared<moving_average>(std::chrono::minutes(1),interval)),
-			  m_five_minute_tracker(std::make_shared<moving_average>(std::chrono::minutes(5),interval)),
-			  m_fifteen_minute_tracker(std::make_shared<moving_average>(std::chrono::minutes(15),interval))
+			  m_one_minute_tracker(std::make_shared<AverageType>(std::chrono::minutes(1),interval)),
+			  m_five_minute_tracker(std::make_shared<AverageType>(std::chrono::minutes(5),interval)),
+			  m_fifteen_minute_tracker(std::make_shared<AverageType>(std::chrono::minutes(15),interval))
 			{
 
 			}
@@ -67,22 +67,12 @@ namespace metrics {
 				ns previous = *m_last_tick;
 				ns now = std::chrono::duration_cast<ns>(m_timer.now().time_since_epoch());
 				ns age = now - previous;
-				//std::cout << "tick interval " << std::chrono::duration_cast<ns>(interval).count() << std::endl;
-				//std::cout << "age " << age.count() << std::endl; 
-				if(age > std::chrono::duration_cast<ns>(interval)){
+				if(age >= std::chrono::duration_cast<ns>(interval)){
 					ns last_tick = previous + age - (age % interval);
-					std::cout << "ticking " << std::endl;
-					std::cout << "prev : " << previous << std::endl;
-					std::cout << "last_tick" << last_tick << std::endl;
 					if(m_last_tick->compare_exchange_strong(previous,last_tick)){
-						std::cout << "really ticking" << std::endl;
-						std::cout << "before cast" << (last_tick - previous).count() << std::endl;
-						auto ticks = std::chrono::duration_cast<decltype(interval)>(last_tick-previous);
-						std::cout << "calculated ticks" << ticks.count() << std::endl;
-						for(int i = 0; i < ticks.count();++i){
-							std::cout << "t" << std::endl;
+						auto ticks = (last_tick-previous)/interval;
+						for(int i = 0; i < ticks;++i){
 							m_one_minute_tracker->tick();
-							std::cout << m_one_minute_tracker->rate()  << "1MR" << std::endl;
 							m_five_minute_tracker->tick();
 							m_fifteen_minute_tracker->tick();
 						}
@@ -94,9 +84,9 @@ namespace metrics {
 			ClockType m_timer;
 			time_point m_start_time;
 			std::shared_ptr<std::atomic<ns>> m_last_tick;
-			std::shared_ptr<moving_average> m_one_minute_tracker;
-			std::shared_ptr<moving_average> m_five_minute_tracker;
-			std::shared_ptr<moving_average> m_fifteen_minute_tracker;
+			std::shared_ptr<AverageType> m_one_minute_tracker;
+			std::shared_ptr<AverageType> m_five_minute_tracker;
+			std::shared_ptr<AverageType> m_fifteen_minute_tracker;
 		};
 
 		typedef clocked_meter<std::chrono::high_resolution_clock> meter;
