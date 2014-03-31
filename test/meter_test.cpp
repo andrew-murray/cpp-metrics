@@ -252,11 +252,15 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 
 	mock::time = 2;
 
-	auto verify_finished = [&]()->bool{
-			return (time_0 == mock::time) && (time_1 == mock::time);
+	auto verify_2= [&time_0,&time_1]()->bool{
+			return (time_0 == 2) && (time_1 == 2);
 	};
 
-	wait_for(verify_finished);
+	auto verify_4 = [&time_0,&time_1]()->bool{
+			return (time_0 == 4) && (time_1 == 4);
+	};
+
+	wait_for(verify_2);
 
 	BOOST_CHECK_EQUAL(m.count(),10);
 	BOOST_CHECK_EQUAL(m.mean_rate(),10 / mock::time);
@@ -267,7 +271,7 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 
 	mock::time = 4;
 
-	wait_for(verify_finished);
+	wait_for(verify_4);
 
 	int count_before_interval = m.count();
 	BOOST_CHECK_EQUAL(count_before_interval,30);
@@ -281,8 +285,8 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 
 
 	BOOST_CHECK_EQUAL(m.one_minute_rate(),(count_before_interval / mock::time) * 60);
-	BOOST_CHECK_EQUAL(m.five_minute_rate(),(count_before_interval / mock::time) * 60 * 5);
-	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),(count_before_interval / mock::time) * 60 * 15);
+	BOOST_CHECK_EQUAL(m.five_minute_rate(),(count_before_interval / mock::time) * 60);
+	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),(count_before_interval / mock::time) * 60);
 
 
 }

@@ -40,7 +40,6 @@ public:
 		} else {
 			//m_rate = alpha * recent_rate + (1.0 - alpha) * m_rate;
 			m_rate += m_alpha * (recent_rate - m_rate);
-			std::cout << "bad tick" << std::endl;
 		}
 	}
 
