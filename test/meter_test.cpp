@@ -204,6 +204,11 @@ BOOST_AUTO_TEST_CASE(meter_ticker_test){
 
 }
 
+void wait_for(const std::function<bool(void)>& func){
+    do {
+        std::this_thread::yield();
+    } while (!func());
+}
 
 BOOST_AUTO_TEST_CASE(meter_ewma_test){
 
@@ -223,18 +228,18 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),0);
 
 	bool terminate = false;
-	auto force_count = [&terminate,&m](int& time){
+	auto force_count = [&terminate,&m](std::atomic<int>& time){
 		while(!terminate){
 			if(time != mock::time){
 				int diff = mock::time - time;
 				m.mark(5 * diff);
-				time = mock::time;
+				time = (int)mock::time;
 			}
 		}
 	};
 
-	int time_0 = mock::time;
-	int time_1 = mock::time;
+	std::atomic<int> time_0((int)mock::time);
+	std::atomic<int> time_1((int)mock::time);
 
 	std::thread marker_0(force_count,std::ref(time_0));
 	std::thread marker_1(force_count,std::ref(time_1));
@@ -247,7 +252,11 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 
 	mock::time = 2;
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	auto verify_finished = [&]()->bool{
+			return (time_0 == mock::time) && (time_1 == mock::time);
+	};
+
+	wait_for(verify_finished);
 
 	BOOST_CHECK_EQUAL(m.count(),10);
 	BOOST_CHECK_EQUAL(m.mean_rate(),10 / mock::time);
@@ -256,21 +265,24 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),0);
 
 
-	mock::time = 5;
+	mock::time = 4;
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	wait_for(verify_finished);
 
-	BOOST_CHECK_EQUAL(m.count(),40);
-	BOOST_CHECK_EQUAL(m.one_minute_rate(),(40 / mock::time) * 60);
-	BOOST_CHECK_EQUAL(m.five_minute_rate(),(40 / mock::time) * 60 * 5);
-	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),(40 / mock::time) * 60 * 15);
-
-
+	int count_before_interval = m.count();
+	BOOST_CHECK_EQUAL(count_before_interval,30);
 	terminate = true;
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	marker_0.join();
 	marker_1.join();
+	
+	mock::time = 5;
+
+
+	BOOST_CHECK_EQUAL(m.one_minute_rate(),(count_before_interval / mock::time) * 60);
+	BOOST_CHECK_EQUAL(m.five_minute_rate(),(count_before_interval / mock::time) * 60 * 5);
+	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),(count_before_interval / mock::time) * 60 * 15);
+
 
 }

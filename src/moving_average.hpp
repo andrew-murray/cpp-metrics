@@ -37,7 +37,6 @@ public:
 		if(m_first){
 			m_first = false;
 			m_rate = recent_rate;
-			std::cout << m_interval.count() << std::endl;
 		} else {
 			//m_rate = alpha * recent_rate + (1.0 - alpha) * m_rate;
 			m_rate += m_alpha * (recent_rate - m_rate);
@@ -51,8 +50,6 @@ public:
 
 	template<typename Duration = std::chrono::minutes>
     double rate(const Duration& unit = std::chrono::minutes(1)) {
-    	std::cout << "rate : " << m_rate << std::endl;
-    	std::cout << "duration " << std::chrono::duration_cast<time_type>(unit).count() << std::endl;
         return m_rate * (double) std::chrono::duration_cast<time_type>(unit).count();
     }
 
