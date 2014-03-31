@@ -4,6 +4,7 @@ syntax: glob
 *.dll
 *.lib
 *.pdb
+*.a
 build
 
 
