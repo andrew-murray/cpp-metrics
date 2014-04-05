@@ -2,8 +2,9 @@
 #include <algorithm>
 
 class snapshot {
+public:
     template<typename T>
-    snapshot(const T&& container)
+    snapshot(T&& container)
     : m_values(container.size())
     {
     	std::copy(container.begin(),container.end(),m_values.begin());
