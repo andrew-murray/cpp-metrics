@@ -14,10 +14,6 @@ BOOST_AUTO_TEST_CASE(snapshot_test){
 		vec[i] = (32-i)*(i+18) + 2;
 	}
 
-	for(auto val : vec){
-		std::cout << val << ',' << std::endl;
-	}
-
 	snapshot snap(vec);
 
 	int min = *std::min_element(vec.begin(),vec.end());
@@ -35,5 +31,5 @@ BOOST_AUTO_TEST_CASE(snapshot_test){
   	BOOST_CHECK_EQUAL(bacc::mean(acc),snap.mean());
   	// This test fails - I calculate a sample std-dev
   	// while boost calculates a population std-dev
-  	BOOST_CHECK_EQUAL(sqrt(bacc::variance(acc)),snap.std_dev());	
+  	BOOST_CHECK_EQUAL(sqrt((bacc::variance(acc)) * vec.size() / (vec.size() - 1)),snap.std_dev());	
 }
