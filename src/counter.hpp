@@ -1,5 +1,7 @@
+#pragma once
 #include <atomic>
 #include <memory>
+
 namespace metrics {
 	namespace instruments {
 

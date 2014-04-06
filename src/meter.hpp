@@ -1,3 +1,4 @@
+#pragma once
 #include <atomic>
 #include <chrono>
 #include "moving_average.hpp"

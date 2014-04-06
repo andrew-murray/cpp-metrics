@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <algorithm>
 
@@ -11,7 +12,7 @@ public:
     	std::sort(m_values.begin(),m_values.end());
     }
 
-    double quantile(const double& y) {
+    double quantile(const double& y) const {
         if (m_values.size() == 0) {
             return 0.0;
         }
@@ -54,46 +55,46 @@ public:
         return lower + (pos - pos_floor) * (upper - lower);
     }
 
-    int size() {
+    int size() const {
     	return m_values.size();
     }
 
-    double getMedian() {
+    double getMedian() const {
         return quantile(0.5);
     }
 
-    double get75thPercentile() {
+    double get75thPercentile() const {
         return quantile(0.75);
     }
 
-    double get95thPercentile() {
+    double get95thPercentile() const {
         return quantile(0.95);
     }
 
-    double get98thPercentile() {
+    double get98thPercentile() const {
         return quantile(0.98);
     }
 
-    double get99thPercentile() {
+    double get99thPercentile() const {
         return quantile(0.99);
     }
 
-    double get999thPercentile() {
+    double get999thPercentile() const {
         return quantile(0.999);
     }
 
-    std::vector<int> values() {
+    std::vector<int> values() const {
         return m_values;
     }
 
-    int max() {
+    int max() const {
         if (m_values.size() == 0) {
             return 0;
         }
         return m_values.back();
     }
 
-    int min() {
+    int min() const {
         if (m_values.size() == 0) {
             return 0;
         }
@@ -105,11 +106,11 @@ public:
      *
      * @return the arithmetic mean
      */
-    double mean() {
+    double mean() const {
     	return double(std::accumulate(m_values.begin(),m_values.end(),0)) / m_values.size();
     }
 
-    double std_dev() {
+    double std_dev() const {
         // two-pass algorithm for variance, avoids numeric overflow
 
         if (m_values.size() <= 1) {

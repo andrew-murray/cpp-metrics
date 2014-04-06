@@ -1,3 +1,4 @@
+#pragma once
 #include "counter.hpp"
 #include "gauge.hpp"
 #include "meter.hpp"
