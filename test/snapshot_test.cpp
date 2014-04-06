@@ -28,8 +28,7 @@ BOOST_AUTO_TEST_CASE(snapshot_test){
 	bacc::accumulator_set<double, bacc::stats<bacc::tag::variance> > acc;
   	for_each(vec.begin(), vec.end(), std::bind<void>(std::ref(acc), std::placeholders::_1));
 
-  	BOOST_CHECK_EQUAL(bacc::mean(acc),snap.mean());
-  	// This test fails - I calculate a sample std-dev
-  	// while boost calculates a population std-dev
-  	BOOST_CHECK_EQUAL(sqrt((bacc::variance(acc)) * vec.size() / (vec.size() - 1)),snap.std_dev());	
+  	BOOST_CHECK_CLOSE(bacc::mean(acc),snap.mean(),1e-6);
+  	// TODO : Evaluate how to allow sample stats in std dev nicely
+  	BOOST_CHECK_CLOSE(sqrt((bacc::variance(acc)) * vec.size() / (vec.size() - 1)),snap.std_dev(),1e-6);	
 }
