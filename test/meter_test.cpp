@@ -1,18 +1,10 @@
 #include <chrono>
+#include <thread>
 #include <boost/test/unit_test.hpp>
 #include "instruments/meter.hpp"
-#include <thread>
+#include "common.hpp"
 
 namespace mock{
-	static std::atomic<int> time;
-	class clock {
-	public:
-		typedef std::chrono::seconds duration ;
-		typedef std::chrono::time_point<clock> time_point;
-		time_point now() const {
-			return time_point(duration(time));
-		}
-	};
 	class ticker;
 	static std::vector<ticker*> one_minute_tickers;
 	static std::vector<ticker*> five_minute_tickers;

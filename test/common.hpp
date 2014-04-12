@@ -1,5 +1,7 @@
 #pragma once
 #include <algorithm>
+#include <atomic>
+#include <chrono>
 #include <cmath>
 #include <boost/test/unit_test.hpp>
 #include <boost/accumulators/accumulators.hpp>
@@ -28,4 +30,16 @@ inline void test_snapshot(const std::vector<int>& vec, const snapshot& snap){
   	} else {
   		BOOST_CHECK_CLOSE(0.0,snap.std_dev(),1e-6);
   	}	
+}
+
+namespace mock {
+  static std::atomic<int> time;
+  class clock {
+  public:
+    typedef std::chrono::seconds duration ;
+    typedef std::chrono::time_point<clock> time_point;
+    static time_point now() {
+      return time_point(duration(time));
+    }
+  };
 }
