@@ -17,7 +17,7 @@ namespace metrics {
 			Unfortunately ~ you MUST call begin_updates and halt_updates
 			~ expected to be at the end of your constructor and the beginning 
 			of your destructor... there may need to be some sort of synchronization
-			in this class later.
+			in this class later.	
 		*/
 		template<typename ClockType = std::chrono::high_resolution_clock>
 		class regular_updater_mixin {
@@ -47,7 +47,7 @@ namespace metrics {
 			virtual ~regular_updater_mixin(){}
 
 			void begin_updates(){
-				m_thread = m_thread(&regular_updater_mixin::thread_main, this);
+				m_thread = std::thread(&regular_updater_mixin::thread_main, this);
 			}
 
 			void halt_updates(){

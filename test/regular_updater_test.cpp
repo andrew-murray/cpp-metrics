@@ -10,7 +10,7 @@ namespace mock {
 	class update_logger : public metrics::utils::regular_updater_mixin<mock::clock> {
 	public:
 		update_logger()
-		: regular_updater_mixin(std::chrono::nanoseconds(1))
+		: regular_updater_mixin(std::chrono::milliseconds(1))
 		{
 			begin_updates();
 		}
