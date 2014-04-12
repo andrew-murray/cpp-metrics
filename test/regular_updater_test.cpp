@@ -12,11 +12,11 @@ namespace mock {
 		update_logger()
 		: regular_updater_mixin(std::chrono::nanoseconds(1))
 		{
-
+			begin_updates();
 		}
 
 		~update_logger(){
-			std::cout << "destructing" << std::endl;
+			halt_updates();
 		}
 	private:
 		void update(){
@@ -27,5 +27,5 @@ namespace mock {
 
 BOOST_AUTO_TEST_CASE(regular_updater_test){
 	mock::update_logger logger;
-	std::this_thread::sleep_for(std::chrono::seconds(5));
+	std::this_thread::sleep_for(std::chrono::seconds(2));
 }
