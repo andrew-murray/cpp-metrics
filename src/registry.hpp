@@ -1,7 +1,7 @@
 #pragma once
-#include "counter.hpp"
-#include "gauge.hpp"
-#include "meter.hpp"
+#include "instruments/counter.hpp"
+#include "instruments/gauge.hpp"
+#include "instruments/meter.hpp"
 #include <map>
 
 namespace metrics {

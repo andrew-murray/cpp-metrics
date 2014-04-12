@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "counter.hpp"
+#include "instruments/counter.hpp"
 
 BOOST_AUTO_TEST_CASE(counter_test){
 	metrics::instruments::counter c;

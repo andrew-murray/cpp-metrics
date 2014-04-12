@@ -1,6 +1,6 @@
 #include <chrono>
 #include <boost/test/unit_test.hpp>
-#include "meter.hpp"
+#include "instruments/meter.hpp"
 #include <thread>
 
 namespace mock{
