@@ -13,7 +13,7 @@ namespace metrics {
 			{
 			}
 
-			virtual double get_value(){
+			virtual double get_value() const {
 					return m_measure();
 			}
 

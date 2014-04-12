@@ -27,7 +27,7 @@ namespace metrics {
 
 			}
 
-			unsigned int count(){
+			unsigned int count() const {
 				return (unsigned int) *m_count;
 			}
 
@@ -39,30 +39,30 @@ namespace metrics {
 				m_fifteen_minute_tracker->mark(val);
 			}
 
-			double mean_rate(){
+			double mean_rate() const {
 				typedef std::chrono::duration<double> fp_seconds;
 				clock_duration diff(m_timer.now() - m_start_time);
 				fp_seconds s(std::chrono::duration_cast<fp_seconds>(diff));
 				return *m_count / s.count();
 			}
 
-			double one_minute_rate(){
+			double one_minute_rate() const {
 				tick_if_needed();
 				return m_one_minute_tracker->rate();
 			}
 
-			double five_minute_rate(){
+			double five_minute_rate() const{
 				tick_if_needed();
 				return m_five_minute_tracker->rate();
 			}
 
-			double fifteen_minute_rate(){
+			double fifteen_minute_rate() const {
 				tick_if_needed();
 				return m_fifteen_minute_tracker->rate();
 			}
 
 		private:
-			void tick_if_needed(){
+			void tick_if_needed() const {
 				// this function would perhaps be easier if we were
 				// just counting ticks
 				ns previous = *m_last_tick;

@@ -9,7 +9,7 @@ namespace mock{
 	public:
 		typedef std::chrono::seconds duration ;
 		typedef std::chrono::time_point<clock> time_point;
-		time_point now(){
+		time_point now() const {
 			return time_point(duration(time));
 		}
 	};
