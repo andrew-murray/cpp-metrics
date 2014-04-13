@@ -28,7 +28,7 @@ namespace metrics {
 						auto&& current_time(m_clock.now());
 						update();
 						std::this_thread::sleep_until(current_time + m_tick_ns);
-					} while (!m_killed);
+					} while (m_active);
 				} catch(...) {
 					handle_update_exception(std::current_exception());
 				}
@@ -40,25 +40,26 @@ namespace metrics {
 			template<typename T>
 			regular_updater_mixin(const T& interval)
 			: m_tick_ns(std::chrono::duration_cast<ns>(interval))
-			, m_killed(false)
+			, m_active(false)
 			{
 
 			}
 			virtual ~regular_updater_mixin(){}
 
 			void begin_updates(){
+				m_active = true;
 				m_thread = std::thread(&regular_updater_mixin::thread_main, this);
 			}
 
 			void halt_updates(){
-				m_killed = true;
+				m_active = false;
 				if(m_thread.joinable()){
 					m_thread.join();
 				}			
 			}
 			ns m_tick_ns;
 			std::thread m_thread;
-			bool m_killed;
+			bool m_active;
 		private:
 
 			virtual void update() = 0;
