@@ -9,7 +9,7 @@
 namespace mock {
 	class update_logger : public metrics::utils::regular_updater_mixin<std::chrono::high_resolution_clock> {
 	public:
-		update_logger() noexcept
+		update_logger()
 		: regular_updater_mixin(std::chrono::milliseconds(100))
 		, m_interval(std::chrono::milliseconds(100))
 		, m_count(0)

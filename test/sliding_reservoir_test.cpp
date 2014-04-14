@@ -2,7 +2,7 @@
 #include "common.hpp"
 
 BOOST_AUTO_TEST_CASE(swr_test){
-	sliding_window_reservoir res(5);
+	metrics::sliding_window_reservoir res(5);
 
 	std::vector<int> vec(21);
 

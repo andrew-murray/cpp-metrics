@@ -4,7 +4,6 @@
 namespace metrics {
     namespace instruments {
 
-
         class histogram {
         public:
             histogram() 

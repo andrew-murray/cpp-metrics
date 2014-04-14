@@ -10,7 +10,7 @@
 
 namespace bacc = boost::accumulators;
 
-inline void test_snapshot(const std::vector<int>& vec, const snapshot& snap){
+inline void test_snapshot(const std::vector<int>& vec, const metrics::snapshot& snap){
 	int min = *std::min_element(vec.begin(),vec.end());
 	int max = *std::max_element(vec.begin(),vec.end());
 

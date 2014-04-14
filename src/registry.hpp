@@ -32,5 +32,19 @@ namespace metrics {
 		std::map<const std::string, instruments::gauge> m_gauges;
 		std::map<const std::string, instruments::counter> m_counters;
 		std::map<const std::string, instruments::meter> m_meters;
+	public:
+
+		auto gauges() -> decltype((m_gauges)){
+			return m_gauges;
+		}
+
+		auto counters() -> decltype((m_counters)){
+			return m_counters;
+		}
+
+
+		auto meters() -> decltype((m_meters)){
+			return m_meters;
+		}
 	};
 }

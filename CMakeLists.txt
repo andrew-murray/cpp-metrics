@@ -4,7 +4,7 @@ project (cpp_metrics)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -g")
 
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost COMPONENTS system unit_test_framework chrono thread REQUIRED)
+find_package(Boost COMPONENTS system unit_test_framework chrono thread serialization REQUIRED)
 
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 

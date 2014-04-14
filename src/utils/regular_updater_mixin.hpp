@@ -1,6 +1,7 @@
 #include <chrono>
 #include <functional>
 #include <type_traits>
+#include <thread>
 
 namespace metrics {
 	namespace utils {

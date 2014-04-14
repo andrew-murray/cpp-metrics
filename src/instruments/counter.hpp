@@ -21,7 +21,11 @@ namespace metrics {
 				(*m_count)-= val;		
 			}
 
-			unsigned int count(){
+			void mark(const int& val = 1){
+				increment(val);
+			}
+
+			unsigned int count() const {
 				return (unsigned int) *m_count;
 			}
 		private:
