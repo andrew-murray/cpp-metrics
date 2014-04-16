@@ -1,3 +1,4 @@
+#pragma once
 #include "instruments/counter.hpp"
 #include "instruments/gauge.hpp"
 #include "instruments/histogram.hpp"
