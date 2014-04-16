@@ -3,6 +3,7 @@
 #include "instruments/histogram.hpp"
 #include "instruments/meter.hpp"
 #include "boost/serialization/split_free.hpp"
+#include <boost/archive/xml_oarchive.hpp>
 #include <type_traits>
 
 BOOST_SERIALIZATION_SPLIT_FREE(metrics::instruments::counter)
@@ -14,14 +15,14 @@ namespace boost {
 	namespace serialization {
 
 	template<typename Archive,typename T>
-	void  save_impl(Archive& archive,T&& val){
-		archive & val;
+	void  save_impl(Archive& archive,const std::string& name,T&& val){
+		archive & boost::serialization::make_nvp(name.c_str(),val);
 	}
 
 	template<class Archive>
 	void save(Archive& archive, const metrics::instruments::counter & counter, const unsigned int /*version*/)
 	{
-		save_impl(archive,counter.count());
+		save_impl(archive,"count",counter.count());
 	}
 	
 	template<class Archive>
@@ -35,7 +36,7 @@ namespace boost {
 	template<class Archive>
 	void save(Archive& archive, const metrics::instruments::gauge & gauge, const unsigned int /*version*/)
 	{
-		save_impl(archive,gauge.get_value());
+		save_impl(archive,"value",gauge.get_value());
 	}
 	
 	template<class Archive>
@@ -64,14 +65,10 @@ namespace boost {
 	template<class Archive>
 	void save(Archive& archive, const metrics::instruments::meter& meter, const unsigned int /*version*/)
 	{
-	    save_impl(archive,std::string("mean_rate"));
-		save_impl(archive,meter.mean_rate());
-	    save_impl(archive,std::string("one_minute_rate"));
-	    save_impl(archive,meter.one_minute_rate());
-	    save_impl(archive,std::string("five_minute_rate"));
-	    save_impl(archive,meter.five_minute_rate());
-	    save_impl(archive,std::string("fifteen_minute_rate"));
-	    save_impl(archive,meter.fifteen_minute_rate());
+		save_impl(archive,std::string("mean_rate"),meter.mean_rate());
+	    save_impl(archive,std::string("one_minute_rate"),meter.one_minute_rate());
+	    save_impl(archive,std::string("five_minute_rate"),meter.five_minute_rate());
+	    save_impl(archive,std::string("fifteen_minute_rate"),meter.fifteen_minute_rate());
 	}
 	
 	template<class Archive>

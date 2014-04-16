@@ -42,9 +42,9 @@ namespace metrics {
 		  	}
 
 		  	void update(){
-		  		m_archive << m_registry.counters();
-		  		m_archive << m_registry.gauges();
-		  		m_archive << m_registry.meters();
+		  		m_archive << boost::serialization::make_nvp("counters",m_registry.counters());
+		  		m_archive << boost::serialization::make_nvp("gauges",m_registry.gauges());
+		  		m_archive << boost::serialization::make_nvp("meters",m_registry.meters());
 
 		  		/*
 		  		for(auto&& string_gauge_pair : m_registry.gauges()){
