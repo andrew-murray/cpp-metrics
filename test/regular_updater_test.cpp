@@ -7,23 +7,23 @@
 
 
 namespace mock {
-	class update_logger : public metrics::utils::regular_updater_mixin<std::chrono::high_resolution_clock> {
+	class update_logger {
 	public:
 		update_logger()
-		: regular_updater_mixin(std::chrono::milliseconds(100))
-		, m_interval(std::chrono::milliseconds(100))
+		: m_interval(std::chrono::milliseconds(100))
 		, m_count(0)
 		, lockfree_flag(true)
+		, m_updater(m_interval,[this](){this->update();})
 		{
-			begin_updates();
+			m_updater.begin_updates();
 		}
 
 		~update_logger(){
-			halt_updates();
+			m_updater.halt_updates();
 		}
 
 		void stop(){
-			halt_updates();
+			m_updater.halt_updates();
 		}
 
 		int count(){
@@ -41,6 +41,7 @@ namespace mock {
 		unsigned int m_count;
 		std::chrono::nanoseconds m_interval;
 		std::atomic_flag lockfree_flag;
+		metrics::utils::regular_updater<std::chrono::high_resolution_clock> m_updater;
 	};
 }
 

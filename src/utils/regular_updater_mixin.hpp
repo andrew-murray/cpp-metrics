@@ -6,50 +6,39 @@
 namespace metrics {
 	namespace utils {
 		/*
-			A mixin that spawns a thread to periodically call a function
-			update() 
-			in a derived class.
+			 This is a utility class to allow periodic updates to be
+			 queued.
 
-			I have a really bad feeling I'm trying to do something impossible
-			and this pattern will inevitably cause a virtual function call
-			exception ... however it's really neat if it'll work
-
-
-			Unfortunately ~ you MUST call begin_updates and halt_updates
-			~ expected to be at the end of your constructor and the beginning 
-			of your destructor... there may need to be some sort of synchronization
-			in this class later.	
+			 Note: the passed callback cannot throw 
 		*/
 		template<typename ClockType = std::chrono::high_resolution_clock>
-		class regular_updater_mixin {
+		class regular_updater{
 		private:
 			void thread_main(){
-				try {
-					do {
-						auto&& current_time(m_clock.now());
-						update();
-						std::this_thread::sleep_until(current_time + m_tick_ns);
-					} while (m_active);
-				} catch(...) {
-					handle_update_exception(std::current_exception());
-				}
+				do {
+					auto&& current_time(m_clock.now());
+					m_update();
+					std::this_thread::sleep_until(current_time + m_tick_ns);
+				} while (m_active);
 			}
 		public:
 
 			typedef std::chrono::nanoseconds ns;
 
 			template<typename T>
-			regular_updater_mixin(const T& interval)
+			regular_updater(const T& interval,const std::function<void()>& update)
 			: m_tick_ns(std::chrono::duration_cast<ns>(interval))
 			, m_active(false)
+			, m_update(update)
 			{
 
 			}
-			virtual ~regular_updater_mixin(){}
+
+			virtual ~regular_updater(){}
 
 			void begin_updates(){
 				m_active = true;
-				m_thread = std::thread(&regular_updater_mixin::thread_main, this);
+				m_thread = std::thread(&regular_updater::thread_main, this);
 			}
 
 			void halt_updates(){
@@ -58,13 +47,12 @@ namespace metrics {
 					m_thread.join();
 				}			
 			}
+
+		private:
 			ns m_tick_ns;
 			std::thread m_thread;
 			bool m_active;
-		private:
-
-			virtual void update() = 0;
-			virtual void handle_update_exception(const std::exception_ptr eptr){}
+			std::function<void()> m_update;
 			ClockType m_clock;
 		};
 	}
