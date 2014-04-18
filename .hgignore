@@ -10,3 +10,4 @@ build
 
 syntax: regexp
 ^build/
+^cpp-netlib/

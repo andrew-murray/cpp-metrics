@@ -8,6 +8,9 @@
 #include "registry.hpp"
 #include "boost_serializer.hpp"
 #include <deque>
+#include <boost/network/include/http/client.hpp>
+
+namespace network = boost::network;
 
 namespace metrics {
 	namespace reporting {
@@ -39,22 +42,21 @@ namespace metrics {
 		  		// note: this function should probably capture
 		  		// state up front - then do the work to serialize it
 		  		std::stringstream output;
-		  		{
-			  		auto&& tp = m_clock.now();
-			  		for(auto&& result : m_registry.counters()){
-			  			output << result.first << " " << result.second.count() << " " << tp.time_since_epoch().count();
-			  			m_string_queue.push_back(output.str());
-			  			output.str("");
-			  		}
-			  	}
+		  		auto&& tp = std::chrono::duration_cast<std::chrono::seconds>(m_clock.now().time_since_epoch());
+
+		  		for(auto&& result : m_registry.counters()){ 
+		  			output << result.first << " " << result.second.count() << " " << tp.count();
+		  			m_string_queue.push_back(output.str());
+		  			output.str("");
+		  		}
 
 		  		for(auto&& result : m_registry.gauges()){
-		  			output << result.first << " " << result.second.get_value() << " " << m_clock.now().time_since_epoch().count();
+		  			output << result.first << " " << result.second.get_value() << " " << tp.count();
 		  			m_string_queue.push_back(output.str());
 		  			output.str(" ");
 		  		}
 		  		for(auto&& result : m_registry.meters()){
-		  			output << result.first << " " << result.second.mean_rate() << m_clock.now().time_since_epoch().count();
+		  			output << result.first << " " << result.second.mean_rate() << " " << tp.count();
 		  			m_string_queue.push_back(output.str());
 		  			output.str(" ");
 		  		}
@@ -64,12 +66,18 @@ namespace metrics {
 		  		// on each update empty the queue
 		  		// really want a "wake-on-message" system
 	  			while(!m_string_queue.empty()){
+	  				std::cout << "doing a thing" << std::endl;
 	  				std::cout << m_string_queue[0] << std::endl;
+	  				//network::http::client::request req("http://localhost:2003");
+	  				//m_client.post(req,m_string_queue[0]);
+	  				system((std::string("echo ") + m_string_queue[0]+std::string("| nc -q0 localhost 2003")).c_str());
 	  				m_string_queue.pop_front();
+	  				std::cout << "done a thing" << std::endl;
 	  			}
 		  	}
 
 		  	virtual ~graphite_reporter(){
+		  		std::cout << "time to die" << std::endl;
 		  		m_get_updater.halt_updates();
 		  		m_post_updater.halt_updates();
 		  	}
@@ -79,6 +87,7 @@ namespace metrics {
 		  	metrics::utils::regular_updater<> m_get_updater;
 		  	metrics::utils::regular_updater<> m_post_updater;
 		  	ClockType m_clock;
+		  	network::http::client m_client;
 		  };
 	}
 }
