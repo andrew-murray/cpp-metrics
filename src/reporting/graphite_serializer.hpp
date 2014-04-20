@@ -8,31 +8,22 @@
 #include "registry.hpp"
 #include "boost_serializer.hpp"
 #include <deque>
-#include <boost/network/include/http/client.hpp>
-
-namespace network = boost::network;
+#include <boost/asio.hpp>
 
 namespace metrics {
 	namespace reporting {
 
-		template<typename ClockType,typename StreamType = std::ofstream>
+		template<typename ClockType>
 		class graphite_reporter {
 		public:
-			template <typename T = std::chrono::seconds, typename = typename std::enable_if<std::is_same<StreamType,std::ofstream>::value>::type>
-		  	graphite_reporter(const std::string& filename, metrics::registry& reg,const T& interval = std::chrono::seconds(20))
-		  	: m_registry(reg)
-		  	, m_get_updater(interval,[this](){this->queue_strings();})
-		  	, m_post_updater(interval,[this](){this->post_strings();})
-		  	{
-		  		m_get_updater.begin_updates();
-		  		m_post_updater.begin_updates();
-		  	}
-
 			template <typename T = std::chrono::seconds>
-		  	graphite_reporter(StreamType& stream, metrics::registry& reg,const T& interval = std::chrono::seconds(20))
+		  	graphite_reporter(const std::string& host, const std::string& port,metrics::registry& reg,const T& interval = std::chrono::seconds(20))
 		  	: m_registry(reg)
 		  	, m_get_updater(interval,[this](){this->queue_strings();})
 		  	, m_post_updater(interval,[this](){this->post_strings();})
+		  	, m_io_service()
+		  	, m_resolver(m_io_service)
+		  	, m_socket(m_io_service)
 		  	{
 		  		m_get_updater.begin_updates();
 		  		m_post_updater.begin_updates();
@@ -66,18 +57,20 @@ namespace metrics {
 		  		// on each update empty the queue
 		  		// really want a "wake-on-message" system
 	  			while(!m_string_queue.empty()){
-	  				std::cout << "doing a thing" << std::endl;
-	  				std::cout << m_string_queue[0] << std::endl;
-	  				//network::http::client::request req("http://localhost:2003");
-	  				//m_client.post(req,m_string_queue[0]);
-	  				system((std::string("echo ") + m_string_queue[0]+std::string("| nc -q0 localhost 2003")).c_str());
+	  				using boost::asio::ip::tcp;
+	  				tcp::resolver::query query("localhost","2003",boost::asio::ip::resolver_query_base::numeric_service);
+	  				tcp::resolver::iterator endpoint_iterator = m_resolver.resolve(query);
+
+	  				boost::asio::streambuf req;
+	  				std::ostream stream(&req);
+	  				stream << m_string_queue[0] << std::endl;
+    				boost::asio::connect(m_socket, endpoint_iterator);
+    				boost::asio::write(m_socket,req);
 	  				m_string_queue.pop_front();
-	  				std::cout << "done a thing" << std::endl;
 	  			}
 		  	}
 
 		  	virtual ~graphite_reporter(){
-		  		std::cout << "time to die" << std::endl;
 		  		m_get_updater.halt_updates();
 		  		m_post_updater.halt_updates();
 		  	}
@@ -87,7 +80,9 @@ namespace metrics {
 		  	metrics::utils::regular_updater<> m_get_updater;
 		  	metrics::utils::regular_updater<> m_post_updater;
 		  	ClockType m_clock;
-		  	network::http::client m_client;
+		  	boost::asio::io_service m_io_service;    
+		  	boost::asio::ip::tcp::resolver m_resolver;
+		  	boost::asio::ip::tcp::socket m_socket;
 		  };
 	}
 }

@@ -23,9 +23,9 @@ BOOST_AUTO_TEST_CASE(metrics_text_reporter_test){
 	{
 		metrics::registry reg;
 		// this test is seriously weak
-		reg.counter("simple.counter.for_serializing").mark(2100000);
-		reg.counter("another.counter.for_serializing").mark(10000);
-		metrics::reporting::graphite_reporter<std::chrono::high_resolution_clock> a(output_stream,reg,std::chrono::milliseconds(20));
+		reg.counter("simple.counter.for_serializing").mark(0);
+		reg.counter("another.counter.for_serializing").mark(0);
+		metrics::reporting::graphite_reporter<std::chrono::high_resolution_clock> a("localhost","2003",reg,std::chrono::milliseconds(20));
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 
