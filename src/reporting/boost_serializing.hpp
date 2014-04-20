@@ -11,6 +11,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(metrics::instruments::counter)
 BOOST_SERIALIZATION_SPLIT_FREE(metrics::instruments::gauge)
 BOOST_SERIALIZATION_SPLIT_FREE(metrics::instruments::meter)
 BOOST_SERIALIZATION_SPLIT_FREE(metrics::snapshot)
+//BOOST_SERIALIZATION_SPLIT_FREE(metrics::instruments::histogram)
 
 namespace boost {
 	namespace serialization {
@@ -59,8 +60,6 @@ namespace boost {
 	    static_assert(false,"metrics::instruments::histogram is not loadable.");
 	}
 
-
-	BOOST_SERIALIZATION_SPLIT_FREE(metrics::instruments::histogram)
 #endif
 
 	template<class Archive>
@@ -83,7 +82,6 @@ namespace boost {
 	template<class Archive>
 	void save(Archive& archive, const metrics::snapshot& snapshot, const unsigned int /*version*/)
 	{
-		/*
 	    archive & std::string("min");
 	    archive & snapshot.min();
 	    archive & std::string("max");
@@ -96,7 +94,6 @@ namespace boost {
 	    archive & snapshot.size();
 	    archive & std::string("standard_deviation");
 	    archive & snapshot.std_dev();
-	    */
 	}
 	
 	template<class Archive>

@@ -19,8 +19,12 @@ namespace metrics {
 			return m_counters[name];
 		}
 
-		template<typename T>
+		template<typename T, typename = typename std::enable_if<!std::is_same<T,double>::value >::type>
 		instruments::gauge& gauge(const std::string& name,const std::function<T(void)>& func){
+			return m_gauges.emplace(name,func).first->second;
+		}
+
+		instruments::gauge& gauge(const std::string& name,const std::function<double(void)>& func){
 			return m_gauges.emplace(name,func).first->second;
 		}
 
