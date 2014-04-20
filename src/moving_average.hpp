@@ -2,8 +2,6 @@
 #include <chrono>
 #include <atomic>
 #include <cmath>
-
-#include <iostream>
 /*
  * This class is naieve to threading issues
  * it expects to be called safely
@@ -35,8 +33,8 @@ public:
 	void tick(){
 		unsigned int count = m_uncounted.exchange(0);
 		double recent_rate = count / (double)m_interval.count();
-		if(m_first){
-			m_first = false;
+		bool lvalue_true = true;
+		if(m_first.compare_exchange_strong(lvalue_true,false)){
 			m_rate = recent_rate;
 		} else {
 			//m_rate = alpha * recent_rate + (1.0 - alpha) * m_rate;
@@ -58,7 +56,7 @@ public:
     }
 private:
 	double m_alpha;
-	bool m_first;
+	std::atomic<bool> m_first;
 	double m_rate;
 	std::atomic<unsigned int> m_uncounted;
 	time_type m_interval;

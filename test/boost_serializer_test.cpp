@@ -16,6 +16,7 @@ BOOST_AUTO_TEST_CASE(metrics_text_reporter_test){
 		// this test is seriously weak
 		reg.counter("simple.counter.for_serializing").mark(10879);
 		reg.counter("another.counter.for_serializing").mark(30091);
+		reg.meter("another.meter.why_not").mark(150);
 		mock::text_reporter a(output_stream,reg,std::chrono::milliseconds(20));
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
