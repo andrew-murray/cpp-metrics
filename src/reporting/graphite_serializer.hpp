@@ -21,10 +21,13 @@ namespace metrics {
 		  	: m_registry(reg)
 		  	, m_get_updater(interval,[this](){this->queue_strings();})
 		  	, m_post_updater(interval,[this](){this->post_strings();})
-		  	, m_io_service()
-		  	, m_resolver(m_io_service)
 		  	, m_socket(m_io_service)
 		  	{
+		  		using boost::asio::ip::tcp;
+	  			tcp::resolver::query query(host,port,boost::asio::ip::resolver_query_base::numeric_service);
+	  			tcp::resolver resolver(m_io_service);
+	  			auto&& endpoint_iterator = resolver.resolve(query);
+    			boost::asio::connect(m_socket, endpoint_iterator);
 		  		m_get_updater.begin_updates();
 		  		m_post_updater.begin_updates();
 		  	}
@@ -54,17 +57,10 @@ namespace metrics {
 		  	}
 
 		  	void post_strings(){
-		  		// on each update empty the queue
-		  		// really want a "wake-on-message" system
 	  			while(!m_string_queue.empty()){
-	  				using boost::asio::ip::tcp;
-	  				tcp::resolver::query query("localhost","2003",boost::asio::ip::resolver_query_base::numeric_service);
-	  				tcp::resolver::iterator endpoint_iterator = m_resolver.resolve(query);
-
 	  				boost::asio::streambuf req;
 	  				std::ostream stream(&req);
 	  				stream << m_string_queue[0] << std::endl;
-    				boost::asio::connect(m_socket, endpoint_iterator);
     				boost::asio::write(m_socket,req);
 	  				m_string_queue.pop_front();
 	  			}
@@ -80,8 +76,7 @@ namespace metrics {
 		  	metrics::utils::regular_updater<> m_get_updater;
 		  	metrics::utils::regular_updater<> m_post_updater;
 		  	ClockType m_clock;
-		  	boost::asio::io_service m_io_service;    
-		  	boost::asio::ip::tcp::resolver m_resolver;
+		  	boost::asio::io_service m_io_service;
 		  	boost::asio::ip::tcp::socket m_socket;
 		  };
 	}
