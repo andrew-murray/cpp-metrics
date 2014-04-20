@@ -4,7 +4,7 @@
 #include <fstream>
 #include <memory>
 #include "boost_serializing.hpp"
-#include "utils/regular_updater_mixin.hpp"
+#include "utils/regular_updater.hpp"
 #include "registry.hpp"
 
 namespace metrics {

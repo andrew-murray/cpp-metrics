@@ -2,7 +2,7 @@
 #include <chrono>
 #include <thread>
 #include <boost/test/unit_test.hpp>
-#include "utils/regular_updater_mixin.hpp"	
+#include "utils/regular_updater.hpp"	
 #include "common.hpp"
 
 
