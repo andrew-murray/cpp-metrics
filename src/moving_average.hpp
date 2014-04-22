@@ -31,11 +31,13 @@ public:
 	}
 
 	void tick(){
-		unsigned int count = m_uncounted.exchange(0);
+		//unsigned int count = std::exchange(m_uncounted,0);
+		unsigned int count = 0;
+		std::swap(count,m_uncounted);
 		double recent_rate = count / (double)m_interval.count();
-		bool lvalue_true = true;
-		if(m_first.compare_exchange_strong(lvalue_true,false)){
+		if(m_first){
 			m_rate = recent_rate;
+			m_first = false;
 		} else {
 			//m_rate = alpha * recent_rate + (1.0 - alpha) * m_rate;
 			m_rate += m_alpha * (recent_rate - m_rate);
@@ -56,10 +58,10 @@ public:
     }
 private:
 	double m_alpha;
-	std::atomic<bool> m_first;
+	bool m_first;
 	double m_rate;
-	std::atomic<unsigned int> m_uncounted;
-	time_type m_interval;
+	unsigned int m_uncounted;
+	const time_type m_interval;
 };
 
 
