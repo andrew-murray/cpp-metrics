@@ -88,6 +88,8 @@ namespace boost {
 	    archive & snapshot.max();
 	    archive & std::string("mean");
 	    archive & snapshot.mean();
+	    archive & std::string("75th_quantile");
+	    archive & snapshot.quantile(0.75);
 	    archive & std::string("95th_quantile");
 	    archive & snapshot.quantile(0.95);
 	    archive & std::string("sample_size");
