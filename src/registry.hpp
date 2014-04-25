@@ -2,6 +2,7 @@
 #include "instruments/counter.hpp"
 #include "instruments/gauge.hpp"
 #include "instruments/meter.hpp"
+#include "instruments/timer.hpp"
 #include <map>
 
 namespace metrics {
@@ -32,10 +33,15 @@ namespace metrics {
 			return m_meters[name];
 		}
 
+		instruments::timer& timer(const std::string& name){
+			return m_timers[name];
+		}
+
 	private:
 		std::map<const std::string, instruments::gauge> m_gauges;
 		std::map<const std::string, instruments::counter> m_counters;
 		std::map<const std::string, instruments::meter> m_meters;
+		std::map<const std::string, instruments::timer> m_timers;
 	public:
 
 		auto gauges() -> decltype((m_gauges)){

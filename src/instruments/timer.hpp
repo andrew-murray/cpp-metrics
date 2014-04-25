@@ -6,9 +6,9 @@
 namespace metrics{
 	namespace instruments{
 		template<typename ClockType = std::chrono::high_resolution_clock>
-		class timer {
+		class clocked_timer {
 		public:
-			timer()
+			clocked_timer()
 			{
 
 			}
@@ -38,5 +38,7 @@ namespace metrics{
 			clocked_meter<ClockType> m_meter;
 			histogram m_histogram;
 		};
+
+		typedef clocked_timer<> timer;
 	}
 }
