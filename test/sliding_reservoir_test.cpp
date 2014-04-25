@@ -1,4 +1,5 @@
 #include "sliding_window_reservoir.hpp"
+#include "random_reservoir.hpp"
 #include "common.hpp"
 
 BOOST_AUTO_TEST_CASE(swr_test){
@@ -29,6 +30,21 @@ BOOST_AUTO_TEST_CASE(swr_test){
 		}
 		test_snapshot(test_vec,res.get_snapshot());
 		res.mark(vec[i]);
+	}
+
+}
+
+BOOST_AUTO_TEST_CASE(random_reservoir_test){
+	metrics::random_reservoir res(100);
+
+	std::vector<int> vec(100);
+
+	for(int i = 0; i < 10 ; ++i){
+		for(int j = 0; j < vec.size(); ++j){
+			vec[j] = 1.0f*j;
+			res.mark(vec[j]);
+		}
+		//test_snapshot(vec,res.get_snapshot());
 	}
 
 }

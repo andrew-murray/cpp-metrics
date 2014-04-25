@@ -31,6 +31,7 @@ namespace metrics{
 			snapshot get_snapshot(){
 				m_histogram.get_snapshot();
 			}
+			
 		public:
 			
 			ClockType m_clock;
