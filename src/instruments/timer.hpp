@@ -7,7 +7,7 @@ namespace metrics{
 	namespace instruments{
 		template<typename ClockType = std::chrono::high_resolution_clock>
 		class timer {
-
+		public:
 			timer()
 			{
 
@@ -31,7 +31,7 @@ namespace metrics{
 			snapshot get_snapshot(){
 				m_histogram.get_snapshot();
 			}
-			
+
 		public:
 			
 			ClockType m_clock;
