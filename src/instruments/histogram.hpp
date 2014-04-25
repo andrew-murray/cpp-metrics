@@ -19,11 +19,7 @@ namespace metrics {
             }
 
             void mark(const int& value){
-                // this code doesn't work
-                // there's a race condition
                 (*m_count)++;
-                // HERE ~ but maybe it's insignificant
-                // java-metrics doesn't synchronize this
                 m_reservoir->mark(value);
             }
 
