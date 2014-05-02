@@ -62,17 +62,3 @@ BOOST_AUTO_TEST_CASE(metrics_xml_reporter_test){
 	// the meter serialization really
 
 }
-
-BOOST_AUTO_TEST_CASE(metrics_graphite_reporter_test){
-	metrics::registry reg;
-	// this test is seriously weak
-	reg.counter("simple.counter.for_serializing").mark(10879);
-	reg.counter("another.counter.for_serializing").mark(30091);
-	reg.meter("another.meter.why_not").mark(1150);
-	reg.gauge("look.at.this.gauge",[&](){return 999.0f;});
-	// note : in ad-hoc prototyping this worked
-	// however need to write a test using a micro boost::asio server
-	// and have a similar weak test 
-	//metrics::reporting::graphite_reporter<std::chrono::high_resolution_clock> a("localhost","2003",reg,std::chrono::milliseconds(20));
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-}
