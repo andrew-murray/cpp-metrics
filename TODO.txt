@@ -1,5 +1,0 @@
--- serializer tests should test something
-	- spin up a server to listen to the port that's being echoed
--- provide a graphite pickle reporter
--- finish the serialization for counter,gauge,meter
--- finish histogram
