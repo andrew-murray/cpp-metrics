@@ -3,6 +3,7 @@
 
 namespace metrics {
 	namespace instruments {
+
 		class gauge {
 		public:
 
@@ -18,5 +19,6 @@ namespace metrics {
 
 			std::function<double(void)> m_measure;
 		};
+		
 	}
 }

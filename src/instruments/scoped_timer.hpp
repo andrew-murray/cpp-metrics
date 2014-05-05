@@ -2,7 +2,7 @@
 #include <thread>
 namespace metrics{
 	namespace instruments {
-		#define hint_likely(x)	__builtin_expect(!!(x), 1)
+		#define metrics_hint_likely(x)	__builtin_expect(!!(x), 1)
 
 		template<typename ClockType = std::chrono::high_resolution_clock>
 		class scoped_timer{
@@ -34,10 +34,11 @@ namespace metrics{
 
 			void stop() __attribute__((always_inline)){
 				m_time = std::chrono::duration_cast<duration>(m_clock.now() - m_start);
+				m_running = false;
 			}
 
 			~scoped_timer() __attribute__((always_inline)){
-				if(hint_likely(m_running)){
+				if(metrics_hint_likely(m_running)){
 					stop();
 				}
 				m_record(m_time);
