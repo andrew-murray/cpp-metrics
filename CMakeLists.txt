@@ -14,14 +14,10 @@ message(STATUS ${METRICS_SRC})
 AUX_SOURCE_DIRECTORY(test METRICS_TEST)
 
 ADD_LIBRARY(metrics ${METRICS_SRC})
-TARGET_LINK_LIBRARIES(metrics
-                      ${Boost_LIBRARIES}
-				    )
+TARGET_LINK_LIBRARIES(metrics ${Boost_LIBRARIES})
 
 INCLUDE_DIRECTORIES(src)
 
 ADD_EXECUTABLE(unittest ${METRICS_TEST})
 
-TARGET_LINK_LIBRARIES(unittest
-                      ${Boost_LIBRARIES}
-				    )
+TARGET_LINK_LIBRARIES(unittest ${Boost_LIBRARIES})

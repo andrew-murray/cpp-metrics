@@ -9,6 +9,7 @@ If you aren't sold on this, watch this [talk on metrics].
 * Document the project better
 * A graphite pickle reporter
 * Histogram
+* Remove all the lovely complicated language features to support older compilers
 
 [metrics]: https://github.com/codahale/metrics
 [talk on metrics]: https://www.youtube.com/watch?v=czes-oa0yik
