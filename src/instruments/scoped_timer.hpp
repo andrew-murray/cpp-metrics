@@ -41,7 +41,6 @@ namespace metrics{
 					stop();
 				}
 				m_record(m_time);
-				//std::cout << m_time.count() << std::endl;
 			}
 
 			ClockType m_clock;

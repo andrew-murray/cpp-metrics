@@ -1,8 +1,8 @@
 #pragma once
 #include <atomic>
 #include <chrono>
-#include "moving_average.hpp"
 #include <iostream>
+#include "moving_average.hpp"
 
 namespace metrics {
 	namespace instruments {
@@ -14,15 +14,15 @@ namespace metrics {
 			typedef typename ClockType::duration clock_duration;
 			typedef std::chrono::nanoseconds ns;
 
-			std::chrono::seconds interval = std::chrono::seconds(5);
-
-			clocked_meter()
-			: m_count(std::make_shared<std::atomic<unsigned int>>(0)),
-			  m_start_time(m_timer.now()),
-			  m_last_tick(std::make_shared<std::atomic<ns>>(std::chrono::duration_cast<ns>(m_start_time.time_since_epoch()))),
-			  m_one_minute_tracker(std::make_shared<AverageType>(std::chrono::minutes(1),interval)),
-			  m_five_minute_tracker(std::make_shared<AverageType>(std::chrono::minutes(5),interval)),
-			  m_fifteen_minute_tracker(std::make_shared<AverageType>(std::chrono::minutes(15),interval))
+			template<typename IntervalType = std::chrono::seconds>
+			clocked_meter(const IntervalType& interval = (IntervalType)std::chrono::seconds(5))
+			: m_count(std::make_shared<std::atomic<unsigned int>>(0))
+			, m_interval(interval)
+			, m_start_time(m_timer.now())
+			, m_last_tick(std::make_shared<std::atomic<ns>>(std::chrono::duration_cast<ns>(m_start_time.time_since_epoch())))
+			, m_one_minute_tracker(std::make_shared<AverageType>(std::chrono::minutes(1),m_interval))
+			, m_five_minute_tracker(std::make_shared<AverageType>(std::chrono::minutes(5),m_interval))
+			, m_fifteen_minute_tracker(std::make_shared<AverageType>(std::chrono::minutes(15),m_interval))
 			{
 
 			}
@@ -68,10 +68,10 @@ namespace metrics {
 				ns previous = *m_last_tick;
 				ns now = std::chrono::duration_cast<ns>(m_timer.now().time_since_epoch());
 				ns age = now - previous;
-				if(age >= std::chrono::duration_cast<ns>(interval)){
-					ns last_tick = previous + age - (age % interval);
+				if(age >= std::chrono::duration_cast<ns>(m_interval)){
+					ns last_tick = previous + age - (age % m_interval);
 					if(m_last_tick->compare_exchange_strong(previous,last_tick)){
-						auto ticks = (last_tick-previous)/interval;
+						auto ticks = (last_tick-previous)/m_interval;
 						for(int i = 0; i < ticks;++i){
 							m_one_minute_tracker->tick();
 							m_five_minute_tracker->tick();
@@ -81,6 +81,7 @@ namespace metrics {
 				}
 			}
 
+			std::chrono::seconds m_interval;
 			std::shared_ptr<std::atomic<unsigned int>> m_count;
 			ClockType m_timer;
 			time_point m_start_time;

@@ -1,7 +1,6 @@
 #pragma once
 #include <functional>
 
-
 namespace metrics {
 	namespace instruments {
 		class gauge {

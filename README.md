@@ -7,6 +7,7 @@ If you aren't sold on this, watch this [talk on metrics].
 ## Things to do
 
 * Document the project better
+* Consider implementation of a gauge that caches its value for a period & a gauge interface
 * A graphite pickle reporter
 * Histogram
 * Remove all the lovely complicated language features to support older compilers

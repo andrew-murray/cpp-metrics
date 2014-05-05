@@ -1,11 +1,11 @@
 #pragma once
+#include <type_traits>
+#include <boost/serialization/split_free.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 #include "instruments/counter.hpp"
 #include "instruments/gauge.hpp"
 #include "instruments/histogram.hpp"
 #include "instruments/meter.hpp"
-#include "boost/serialization/split_free.hpp"
-#include <boost/archive/xml_oarchive.hpp>
-#include <type_traits>
 
 BOOST_SERIALIZATION_SPLIT_FREE(metrics::instruments::counter)
 BOOST_SERIALIZATION_SPLIT_FREE(metrics::instruments::gauge)

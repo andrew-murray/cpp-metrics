@@ -1,23 +1,15 @@
 #pragma once
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/map.hpp>
 #include <fstream>
 #include <memory>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/map.hpp>
 #include "boost_serializing.hpp"
 #include "utils/regular_updater.hpp"
 #include "registry.hpp"
+#include "utils/make_unique.hpp"
 
 namespace metrics {
 	namespace reporting {
-		
-		namespace impl {
-			template <typename T, typename... Args>
-			inline auto make_unique(Args&&... args) -> std::unique_ptr<T>
-			{
-			    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-			}
-		}
-
 
 		template<typename ArchiveType,typename StreamType = std::ofstream>
 		class regular_boost_reporter {
@@ -25,7 +17,7 @@ namespace metrics {
 			template <typename T = std::chrono::seconds, typename = typename std::enable_if<std::is_same<StreamType,std::ofstream>::value>::type>
 		  	regular_boost_reporter(const std::string& filename, metrics::registry& reg,const T& interval = std::chrono::seconds(20))
 		  	: m_registry(reg)
-		  	, m_stream(impl::make_unique<std::ofstream>(filename))
+		  	, m_stream(utils::make_unique<std::ofstream>(filename))
 		  	, m_archive(*m_stream.get())
 		  	, m_updater(interval,[this](){this->serialize();})
 		  	{

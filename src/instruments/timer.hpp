@@ -13,13 +13,13 @@ namespace metrics{
 
 			}
 
-			scoped_timer<ClockType> time(){
+			scoped_timer<ClockType> time_scope(){
 				return scoped_timer<ClockType>([&](const typename scoped_timer<ClockType>::duration& dur){this->update(dur);});
 			}
 
 			template<typename T>
 			void time(T&& func){
-				scoped_timer<ClockType> local_timer(time());
+				scoped_timer<ClockType> local_timer(time_scope());
 				func();
 			}
 
