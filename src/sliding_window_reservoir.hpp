@@ -1,7 +1,6 @@
 #pragma once
-#include <mutex>
+#include <atomic>
 #include "reservoir.hpp"
-#include <iostream>
 
 namespace metrics{
 	class sliding_window_reservoir : public reservoir {
@@ -12,31 +11,28 @@ namespace metrics{
 		{
 		}
 
-		int size() const {
-			std::lock_guard<std::mutex> lock(m_mutex);
-			return size(lock);
+		size_t size() const {
+			return std::min(m_values.size(),(size_t)m_count);
 		}
 
 		virtual void mark(const int& n){
-			std::lock_guard<std::mutex> lock(m_mutex);
-			m_values[m_count++ % m_values.size()] = n;
+			size_t local_count = m_count++;
+			if(local_count < m_values.size()){
+				m_values[local_count] = n;
+			} else {
+				m_values[local_count % m_values.size()] = n;
+			}
 		}
 
 		virtual snapshot get_snapshot() const {
-			std::lock_guard<std::mutex> lock(m_mutex);
-			int sz = size(lock);
-			std::vector<int> snap(sz);
-			std::copy(m_values.begin(), m_values.begin() + sz, snap.begin());
-			return snapshot(snap);
+			int sz = size();
+			std::vector<int> vec(m_values.begin(), m_values.begin() + sz);
+			return snapshot(vec);
 		}
 
 	private:
 
-		int size(const std::lock_guard<std::mutex>& lock) const {
-			return std::min(m_values.size(),m_count);
-		}
-		size_t m_count;
+		std::atomic<size_t> m_count;
 		std::vector<int> m_values;
-		mutable std::mutex m_mutex;
 	};
 }

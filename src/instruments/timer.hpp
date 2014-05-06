@@ -5,6 +5,7 @@
 
 namespace metrics{
 	namespace instruments{
+
 		template<typename ClockType = std::chrono::high_resolution_clock>
 		class clocked_timer {
 		public:

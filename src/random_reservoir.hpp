@@ -1,5 +1,5 @@
 #pragma once
-#include <mutex>
+#include <atomic>
 #include "reservoir.hpp"
 #include <cstdlib>
 
@@ -12,14 +12,15 @@ namespace metrics{
 		{
 		}
 
-		int size() const {
-			return std::min(m_values.size(),m_count);
+		size_t size() const {
+			return std::min(m_values.size(),(size_t)m_count);
 		}
 
 		virtual void mark(const int& n){
-			std::lock_guard<std::mutex> lock(m_mutex);
-			if(m_count < m_values.size()){
-				m_values[m_count++] = n;
+			size_t local_count = m_count;
+			if(local_count < m_values.size()){
+				m_values[local_count] = n;
+				m_count = std::min(((size_t)m_count)+1,m_values.size());
 			} else {
 				const int to_replace = (int)((std::rand() / (double)RAND_MAX)+0.5);
 				m_values[to_replace] = n;
@@ -27,14 +28,12 @@ namespace metrics{
 		}
 
 		virtual snapshot get_snapshot() const {
-			std::lock_guard<std::mutex> lock(m_mutex);
 			std::vector<int> snap(m_values.begin(), m_values.begin()+m_count);
 			return snapshot(snap);
 		}
 
 	private:
-		size_t m_count;
+		std::atomic<size_t> m_count;
 		std::vector<int> m_values;
-		mutable std::mutex m_mutex;
 	};
 }
