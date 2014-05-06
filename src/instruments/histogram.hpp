@@ -19,12 +19,12 @@ namespace metrics {
             }
 
             void mark(const int& value){
-                (*m_count)++;
                 m_reservoir->mark(value);
+                (*m_count)++;
             }
 
             snapshot get_snapshot() const {
-                return m_reservoir->get_snapshot();
+                return m_reservoir->get_snapshot((size_t)m_count);
             }
 
         private:

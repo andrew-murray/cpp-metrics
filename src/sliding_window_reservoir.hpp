@@ -25,8 +25,11 @@ namespace metrics{
 		}
 
 		virtual snapshot get_snapshot() const {
-			int sz = size();
-			std::vector<int> vec(m_values.begin(), m_values.begin() + sz);
+			return get_snapshot(size());
+		}
+
+		virtual snapshot get_snapshot(const size_t& size) const {
+			std::vector<int> vec(m_values.begin(), m_values.begin() + size);
 			return snapshot(vec);
 		}
 

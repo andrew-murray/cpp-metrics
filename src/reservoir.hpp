@@ -5,5 +5,7 @@ namespace metrics{
 	public:
 		virtual void mark(const int&) = 0;
 		virtual snapshot get_snapshot() const = 0;
+		virtual snapshot get_snapshot(const size_t& size) const = 0;
+
 	};
 }
