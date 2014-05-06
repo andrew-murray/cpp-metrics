@@ -15,7 +15,7 @@ namespace metrics{
 			scoped_timer(std::function<void(const duration&)> recorder
 							= std::function<void(const duration&)>(
 								[&](const duration& dur){
-									std::cout << dur << std::endl;
+									std::cout << dur.count() << std::endl;
 								})
 						) __attribute__((always_inline))
 			: m_clock()
@@ -23,7 +23,6 @@ namespace metrics{
 			, m_record(recorder)
 			, m_start(m_clock.now())
 			{
-
 			}
 
 
@@ -33,7 +32,7 @@ namespace metrics{
 			}
 
 			void stop() __attribute__((always_inline)){
-				m_time = std::chrono::duration_cast<duration>(m_clock.now() - m_start);
+				m_period = std::chrono::duration_cast<duration>(m_clock.now() - m_start);
 				m_running = false;
 			}
 
@@ -41,11 +40,11 @@ namespace metrics{
 				if(metrics_hint_likely(m_running)){
 					stop();
 				}
-				m_record(m_time);
+				m_record(m_period);
 			}
 
 			ClockType m_clock;
-			duration m_time;
+			duration m_period;
 			std::function<void(const duration&)> m_record;
 			bool m_running;
 			// important to initialize this last !

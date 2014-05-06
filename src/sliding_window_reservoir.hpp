@@ -3,6 +3,7 @@
 #include "reservoir.hpp"
 
 namespace metrics{
+	
 	class sliding_window_reservoir : public reservoir {
 	public:
 		sliding_window_reservoir(const int& sz)

@@ -77,17 +77,17 @@ BOOST_AUTO_TEST_CASE(meter_counting_test){
 }
 
 BOOST_AUTO_TEST_CASE(meter_rate_test){
-	mock::time = 0;
+	mock::clock::set_time(0);
 	metrics::instruments::clocked_meter<mock::clock> m;
-	mock::time = 1;
+	mock::clock::set_time(1);
 	BOOST_CHECK_EQUAL(m.mean_rate(),0);
 
-	mock::time = 5;
+	mock::clock::set_time(5);
 	m.mark();
 	BOOST_CHECK_CLOSE(m.mean_rate(),0.2,1e-8);
 
 
-	mock::time = 100;
+	mock::clock::set_time(100);
 	m.mark(99);
 	BOOST_CHECK_CLOSE(m.mean_rate(),1,1e-8);
 }
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(meter_rate_test){
 BOOST_AUTO_TEST_CASE(meter_ticker_test){
 	using mock::ticker;
 
-	mock::time = 0;
+	mock::clock::set_time(0);
 	typedef metrics::instruments::clocked_meter<mock::clock,mock::ticker> mock_meter;
 	mock_meter m;
 	BOOST_ASSERT(mock::one_minute_tickers.size() == 1);
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(meter_ticker_test){
 	BOOST_CHECK_EQUAL(ticker_15.ticks(),0);
 
 
-	mock::time = 4;
+	mock::clock::set_time(4);
 
 	BOOST_CHECK_EQUAL(ticker_1.count(),0);
 	BOOST_CHECK_EQUAL(ticker_5.count(),0);
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(meter_ticker_test){
 	BOOST_CHECK_EQUAL(ticker_5.ticks(),0);
 	BOOST_CHECK_EQUAL(ticker_15.ticks(),0);
 
-	mock::time = 5;
+	mock::clock::set_time(5);
 
 	BOOST_CHECK_EQUAL(ticker_1.count(),5);
 	BOOST_CHECK_EQUAL(ticker_5.count(),5);
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(meter_ticker_test){
 	BOOST_CHECK_EQUAL(ticker_5.ticks(),1);
 	BOOST_CHECK_EQUAL(ticker_15.ticks(),1);
 
-	mock::time = 100;
+	mock::clock::set_time(100);
 
 	m.mark(90);
 	r = m.fifteen_minute_rate();
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(meter_ticker_test){
 	BOOST_CHECK_EQUAL(ticker_5.ticks(),20);
 	BOOST_CHECK_EQUAL(ticker_15.ticks(),20);
 
-	mock::time = 104;
+	mock::clock::set_time(104);
 	m.mark(1);
 	r = m.fifteen_minute_rate();
 
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(meter_ticker_test){
 	BOOST_CHECK_EQUAL(ticker_5.ticks(),20);
 	BOOST_CHECK_EQUAL(ticker_15.ticks(),20);
 
-	mock::time = 105;
+	mock::clock::set_time(105);
 	m.mark(1);
 	r = m.fifteen_minute_rate();
 
@@ -204,7 +204,7 @@ void wait_for(const std::function<bool(void)>& func){
 
 BOOST_AUTO_TEST_CASE(meter_ewma_test){
 
-	mock::time = 0;
+	mock::clock::set_time(0);
 	metrics::instruments::clocked_meter<mock::clock> m;
 	// mean_rate returns nan
 	// is this good? It's accurate.
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 	//BOOST_CHECK_EQUAL(m.five_minute_rate(),0);
 	//BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),0);
 
-	mock::time = 1;
+	mock::clock::set_time(1);
 	BOOST_CHECK_EQUAL(m.mean_rate(),0);
 	BOOST_CHECK_EQUAL(m.one_minute_rate(),0);
 	BOOST_CHECK_EQUAL(m.five_minute_rate(),0);
@@ -222,16 +222,16 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 	bool terminate = false;
 	auto force_count = [&terminate,&m](std::atomic<int>& time){
 		while(!terminate){
-			if(time != mock::time){
-				int diff = mock::time - time;
+			if(time != mock::clock::time()){
+				int diff = mock::clock::time() - time;
 				m.mark(5 * diff);
-				time = (int)mock::time;
+				time = (int)mock::clock::time();
 			}
 		}
 	};
 
-	std::atomic<int> time_0((int)mock::time);
-	std::atomic<int> time_1((int)mock::time);
+	std::atomic<int> time_0((int)mock::clock::time());
+	std::atomic<int> time_1((int)mock::clock::time());
 
 	std::thread marker_0(force_count,std::ref(time_0));
 	std::thread marker_1(force_count,std::ref(time_1));
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 	BOOST_CHECK_EQUAL(m.five_minute_rate(),0);
 	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),0);
 
-	mock::time = 2;
+	mock::clock::set_time(2);
 
 	auto verify_2= [&time_0,&time_1]()->bool{
 			return (time_0 == 2) && (time_1 == 2);
@@ -255,13 +255,13 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 	wait_for(verify_2);
 
 	BOOST_CHECK_EQUAL(m.count(),10);
-	BOOST_CHECK_EQUAL(m.mean_rate(),10 / mock::time);
+	BOOST_CHECK_EQUAL(m.mean_rate(),10 / mock::clock::time());
 	BOOST_CHECK_EQUAL(m.one_minute_rate(),0);
 	BOOST_CHECK_EQUAL(m.five_minute_rate(),0);
 	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),0);
 
 
-	mock::time = 4;
+	mock::clock::set_time(4);
 
 	wait_for(verify_4);
 
@@ -273,12 +273,12 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 	marker_0.join();
 	marker_1.join();
 	
-	mock::time = 5;
+	mock::clock::set_time(5);
 
 
-	BOOST_CHECK_EQUAL(m.one_minute_rate(),(count_before_interval / mock::time) * 60);
-	BOOST_CHECK_EQUAL(m.five_minute_rate(),(count_before_interval / mock::time) * 60);
-	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),(count_before_interval / mock::time) * 60);
+	BOOST_CHECK_EQUAL(m.one_minute_rate(),(count_before_interval / mock::clock::time()) * 60);
+	BOOST_CHECK_EQUAL(m.five_minute_rate(),(count_before_interval / mock::clock::time()) * 60);
+	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),(count_before_interval / mock::clock::time()) * 60);
 
 
 }

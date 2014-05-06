@@ -9,10 +9,6 @@ namespace metrics{
 		template<typename ClockType = std::chrono::high_resolution_clock>
 		class clocked_timer {
 		public:
-			clocked_timer()
-			{
-
-			}
 
 			scoped_timer<ClockType> time_scope(){
 				return scoped_timer<ClockType>([&](const typename scoped_timer<ClockType>::duration& dur){this->update(dur);});
@@ -24,13 +20,18 @@ namespace metrics{
 				func();
 			}
 
+			size_t count() const {
+				return m_meter.count();
+			}
+
+
 			void update(const typename ClockType::duration& dur){
 				m_histogram.mark(dur.count());
 				m_meter.mark();
 			}
 
-			snapshot get_snapshot(){
-				m_histogram.get_snapshot();
+			snapshot get_snapshot() const {
+				return m_histogram.get_snapshot();
 			}
 
 		public:

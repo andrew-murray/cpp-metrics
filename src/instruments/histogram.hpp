@@ -8,7 +8,7 @@ namespace metrics {
         class histogram {
         public:
             histogram() 
-            : m_count(std::make_shared<std::atomic<int>>(0))
+            : m_count(std::make_shared<std::atomic<size_t>>(0))
             , m_reservoir(std::dynamic_pointer_cast<reservoir>(std::make_shared<sliding_window_reservoir>(100)))
             {
 
@@ -24,12 +24,12 @@ namespace metrics {
             }
 
             snapshot get_snapshot() const {
-                return m_reservoir->get_snapshot((size_t)m_count);
+                return m_reservoir->get_snapshot((size_t)*m_count);
             }
 
         private:
             std::shared_ptr<reservoir> m_reservoir;
-            std::shared_ptr<std::atomic<int>> m_count;
+            std::shared_ptr<std::atomic<size_t>> m_count;
         };
     
     }

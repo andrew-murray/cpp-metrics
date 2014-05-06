@@ -33,13 +33,12 @@ inline void test_snapshot(const std::vector<int>& vec, const metrics::snapshot& 
 }
 
 namespace mock {
-  static std::atomic<int> time;
   class clock {
   public:
-    typedef std::chrono::seconds duration ;
+    typedef std::chrono::seconds duration;
     typedef std::chrono::time_point<clock> time_point;
-    static time_point now() {
-      return time_point(duration(time));
-    }
+    static time_point now();
+    static void set_time(const int& val);
+    static int time();
   };
 }
