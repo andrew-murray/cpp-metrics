@@ -40,7 +40,6 @@ namespace mock {
 	          {
 	          	std::string received(data_,length);
 	            recorded_messages.push_back(received);
-	            // is this not a stack overflow potential ?
 	            do_read();
 	          }
 	        });
@@ -113,10 +112,10 @@ BOOST_AUTO_TEST_CASE(metrics_graphite_reporter_test){
 
     typedef metrics::reporting::graphite_reporter<std::chrono::high_resolution_clock> g_reporter;
 	g_reporter a("localhost","8902",reg,std::chrono::milliseconds(20));
-	// this is needed to ensure that the lifetimes of the registry & reporter outlive
-	// the scope of the function => ensures that server gets enough messages to satisfy
-	// its termination criteria 
+	
+	// wait for enough messages 
 	server.get();
+
 	BOOST_ASSERT(mock::recorded_messages.size() >= recorded_messages_required);
 	BOOST_CHECK_GT(count_in_strings(mock::recorded_messages,"simple.counter.for_serializing"),0);
 	BOOST_CHECK_GT(count_in_strings(mock::recorded_messages,"another.counter.for_serializing"),0);

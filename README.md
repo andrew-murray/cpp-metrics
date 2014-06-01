@@ -1,7 +1,7 @@
 ## cpp-metrics
 
 cpp-metrics is a c++ implementation of measurement tools for tracking what's really happening in your code.
-This library is richly inspired by codahale's [metrics] for the JVM.
+This library is inspired by codahale's [metrics] for the JVM.
 If you aren't sold on this, watch this [talk on metrics].
 
 ## Things to do
