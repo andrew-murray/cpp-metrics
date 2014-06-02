@@ -5,9 +5,7 @@ syntax: glob
 *.lib
 *.pdb
 *.a
-build
 
 
 syntax: regexp
 ^build/
-^cpp-netlib/
