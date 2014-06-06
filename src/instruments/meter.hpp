@@ -69,9 +69,14 @@ namespace metrics {
 				ns now = std::chrono::duration_cast<ns>(m_timer.now().time_since_epoch());
 				ns age = now - previous;
 				if(age >= std::chrono::duration_cast<ns>(m_interval)){
-					ns last_tick = previous + age - (age % m_interval);
-					if(m_last_tick->compare_exchange_strong(previous,last_tick)){
-						auto ticks = (last_tick-previous)/m_interval;
+					ns::rep last_tick = (previous + age).count() - (age.count() % std::chrono::duration_cast<ns>(m_interval).count());
+					// vc13 chrono seems very unhappy, reverting to integer arithmetic
+					// ns last_tick = previous + age - (age % m_interval);
+					
+					if(m_last_tick->compare_exchange_strong(previous,ns(last_tick))){
+						// vc13 chrono seems very unhappy, reverting to integer arithmetic
+						// auto ticks = (last_tick - previous) / m_interval;
+						auto ticks = (last_tick - previous.count()) / std::chrono::duration_cast<ns>(m_interval).count();
 						for(int i = 0; i < ticks;++i){
 							m_one_minute_tracker->tick();
 							m_five_minute_tracker->tick();

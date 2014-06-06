@@ -12,9 +12,9 @@ namespace mock {
 		update_logger()
 		: m_interval(std::chrono::milliseconds(100))
 		, m_count(0)
-		, lockfree_flag(true)
 		, m_updater(m_interval,[this](){this->update();})
 		{
+			lockfree_flag.clear();
 			m_updater.begin_updates();
 		}
 
@@ -53,5 +53,6 @@ BOOST_AUTO_TEST_CASE(regular_updater_test){
 	auto&& interval = std::chrono::seconds(2);
 	std::this_thread::sleep_for(interval);
 	logger.stop();
-	BOOST_CHECK_CLOSE((float)logger.count(),(float)(interval / logger.interval()),1.0);
+	typedef std::chrono::nanoseconds ns;
+	BOOST_CHECK_CLOSE((float)logger.count(),(float)(std::chrono::duration_cast<ns>(interval).count() / logger.interval().count()),1.0);
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <algorithm>
+#include <numeric>
+
 namespace metrics {
     class snapshot {
     public:
@@ -55,7 +57,7 @@ namespace metrics {
             return lower + (pos - pos_floor) * (upper - lower);
         }
 
-        int size() const {
+        size_t size() const {
         	return m_values.size();
         }
 

@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(metrics_graphite_reporter_test){
     boost::asio::io_service io_service;
     mock::server s(io_service, 8902);
 
-    const int recorded_messages_required = 20;
+    const size_t recorded_messages_required = 20;
 
     auto server_thread = [&](){
     	while(mock::recorded_messages.size() < recorded_messages_required){
