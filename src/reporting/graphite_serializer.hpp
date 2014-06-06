@@ -38,18 +38,18 @@ namespace metrics {
 		  		std::stringstream output;
 		  		auto&& tp = std::chrono::duration_cast<std::chrono::seconds>(m_clock.now().time_since_epoch());
 
-		  		for(auto&& result : m_registry.counters()){ 
+		  		for(auto& result : m_registry.counters()){ 
 		  			output << result.first << " " << result.second.count() << " " << tp.count();
 		  			m_string_queue.push_back(output.str());
 		  			output.str("");
 		  		}
 
-		  		for(auto&& result : m_registry.gauges()){
+		  		for(auto& result : m_registry.gauges()){
 		  			output << result.first << " " << result.second.get_value() << " " << tp.count();
 		  			m_string_queue.push_back(output.str());
 		  			output.str(" ");
 		  		}
-		  		for(auto&& result : m_registry.meters()){
+		  		for(auto& result : m_registry.meters()){
 		  			output << result.first << " " << result.second.mean_rate() << " " << tp.count();
 		  			m_string_queue.push_back(output.str());
 		  			output.str(" ");

@@ -9,7 +9,7 @@ namespace metrics {
 
 			template<typename T>
 			gauge(const std::function<T(void)>& measure)
-				: m_measure([&](){return (double) measure();})
+				: m_measure([measure](){return (double) measure();})
 			{
 			}
 
