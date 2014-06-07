@@ -18,7 +18,6 @@ public:
 		: m_alpha(alpha),
 		  m_rate(0.0),
 		  m_first(true),
-		  m_uncounted(0),
 		  m_interval(std::chrono::duration_cast<time_type>(tick))
 	{
 
@@ -30,10 +29,7 @@ public:
 	{
 	}
 
-	void tick(){
-		//unsigned int count = std::exchange(m_uncounted,0);
-		unsigned int count = 0;
-		std::swap(count,m_uncounted);
+	void tick(const unsigned int& count){
 		double recent_rate = count / (double)m_interval.count();
 		if(m_first){
 			m_rate = recent_rate;
@@ -42,10 +38,6 @@ public:
 			//m_rate = alpha * recent_rate + (1.0 - alpha) * m_rate;
 			m_rate += m_alpha * (recent_rate - m_rate);
 		}
-	}
-
-	void mark(unsigned int n = 1){
-		m_uncounted+=n;
 	}
 
 	template<typename Duration = std::chrono::minutes>
@@ -60,7 +52,6 @@ private:
 	double m_alpha;
 	bool m_first;
 	double m_rate;
-	unsigned int m_uncounted;
 	const time_type m_interval;
 };
 

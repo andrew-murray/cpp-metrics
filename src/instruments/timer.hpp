@@ -1,8 +1,8 @@
+#pragma once
 #include <chrono>
 #include "scoped_timer.hpp"
 #include "meter.hpp"
 #include "histogram.hpp"
-
 namespace metrics{
 	namespace instruments{
 
@@ -16,7 +16,11 @@ namespace metrics{
 
 			template<typename T>
 			void time(T&& func){
-				scoped_timer<ClockType> local_timer(time_scope());
+				auto& local_timer = time_scope();
+				// explicitly starting means that we don't include time
+				// the move constructor in the call
+				// this should be documented on the class
+				local_timer.start();
 				func();
 			}
 
@@ -26,7 +30,7 @@ namespace metrics{
 
 
 			void update(const typename ClockType::duration& dur){
-				m_histogram.mark(dur.count());
+				m_histogram.mark((int)dur.count());
 				m_meter.mark();
 			}
 

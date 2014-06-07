@@ -17,6 +17,7 @@ namespace metrics {
 			template<typename IntervalType = std::chrono::seconds>
 			clocked_meter(const IntervalType& interval = (IntervalType)std::chrono::seconds(5))
 			: m_count(std::make_shared<std::atomic<unsigned int>>(0))
+			, m_counted(std::make_shared<std::atomic<unsigned int>>(0))
 			, m_interval(interval)
 			, m_start_time(m_timer.now())
 			, m_last_tick(std::make_shared<std::atomic<ns>>(std::chrono::duration_cast<ns>(m_start_time.time_since_epoch())))
@@ -34,9 +35,6 @@ namespace metrics {
 			void mark(const int& val = 1){
 				tick_if_needed();
 				*m_count += val;
-				m_one_minute_tracker->mark(val);
-				m_five_minute_tracker->mark(val);
-				m_fifteen_minute_tracker->mark(val);
 			}
 
 			double mean_rate() const {
@@ -74,14 +72,21 @@ namespace metrics {
 					// ns last_tick = previous + age - (age % m_interval);
 					
 					if(m_last_tick->compare_exchange_strong(previous,ns(last_tick))){
+						// this implementation assumes this brace is not re-entrant
+						unsigned int count = *m_count - *m_counted;
+						*m_counted += count;
 						// vc13 chrono seems very unhappy, reverting to integer arithmetic
 						// auto ticks = (last_tick - previous) / m_interval;
-						auto ticks = (last_tick - previous.count()) / std::chrono::duration_cast<ns>(m_interval).count();
-						for(int i = 0; i < ticks;++i){
-							m_one_minute_tracker->tick();
-							m_five_minute_tracker->tick();
-							m_fifteen_minute_tracker->tick();
+						auto ticks = (unsigned int) ((last_tick - previous.count()) / std::chrono::duration_cast<ns>(m_interval).count());
+						for(int i = 0; i < (int)ticks -1 ;++i){
+							m_one_minute_tracker->tick(count  / ticks);
+							m_five_minute_tracker->tick(count / ticks);
+							m_fifteen_minute_tracker->tick(count / ticks);
 						}
+						
+						m_one_minute_tracker->tick(count/ticks + count % ticks);
+						m_five_minute_tracker->tick(count / ticks + count % ticks);
+						m_fifteen_minute_tracker->tick(count / ticks + count % ticks);
 					}
 				}
 			}
@@ -91,6 +96,7 @@ namespace metrics {
 			ClockType m_timer;
 			time_point m_start_time;
 			std::shared_ptr<std::atomic<ns>> m_last_tick;
+			std::shared_ptr<std::atomic<unsigned int>> m_counted;
 			std::shared_ptr<AverageType> m_one_minute_tracker;
 			std::shared_ptr<AverageType> m_five_minute_tracker;
 			std::shared_ptr<AverageType> m_fifteen_minute_tracker;

@@ -5,7 +5,7 @@
 BOOST_AUTO_TEST_CASE(timer_test){
 	mock::clock::set_time(0);
 	metrics::instruments::clocked_timer<mock::clock> test_timer;
-	test_timer.time([](){mock::clock::set_time(5);});
+	test_timer.time([&](){mock::clock::set_time(5);});
 
 	BOOST_CHECK_EQUAL(test_timer.count(),1);
 	test_snapshot(std::vector<int>{5},test_timer.get_snapshot());

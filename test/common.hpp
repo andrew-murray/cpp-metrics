@@ -3,6 +3,7 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>
+#include <thread>
 #include <boost/test/unit_test.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
@@ -30,6 +31,13 @@ inline void test_snapshot(const std::vector<int>& vec, const metrics::snapshot& 
   	} else {
   		BOOST_CHECK_CLOSE(0.0,snap.std_dev(),1e-6);
   	}	
+}
+
+
+inline void wait_for(const std::function<bool(void)>& func){
+	do {
+		std::this_thread::yield();
+	} while (!func());
 }
 
 namespace mock {

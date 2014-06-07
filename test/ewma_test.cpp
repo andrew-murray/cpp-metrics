@@ -8,15 +8,14 @@ void mock_minute(ewma& avg){
 	double ticks = 1.0 / interval_in_mins.count();
 	BOOST_ASSERT((ticks - (int) ticks) < 0.01);
 	for(int i = 0; i < (int)ticks; ++i){
-		avg.tick();
+		avg.tick(0);
 	}
 }
 
 // test cases from java-metrics to ensure consistency
-BOOST_AUTO_TEST_CASE(one_minute_ewma_test_from_java){
+BOOST_AUTO_TEST_CASE(one_minute_ewma_test){
 	moving_average ewma(std::chrono::minutes(1),std::chrono::seconds(5));
-    ewma.mark(3);
-    ewma.tick();
+    ewma.tick(3);
 
     BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.6,1e-6);
 
@@ -86,10 +85,9 @@ BOOST_AUTO_TEST_CASE(one_minute_ewma_test_from_java){
 }
 
 // test cases from java-metrics to ensure consistency
-BOOST_AUTO_TEST_CASE(five_minute_ewma_test_from_java){
+BOOST_AUTO_TEST_CASE(five_minute_ewma_test){
 	moving_average ewma(std::chrono::minutes(5),std::chrono::seconds(5));
-    ewma.mark(3);
-    ewma.tick();
+    ewma.tick(3);
 
     BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.6, 1e-6);
 
@@ -156,10 +154,9 @@ BOOST_AUTO_TEST_CASE(five_minute_ewma_test_from_java){
 }
 
 // test cases from java-metrics to ensure consistency
-BOOST_AUTO_TEST_CASE(fifteen_minute_ewma_test_from_java){
+BOOST_AUTO_TEST_CASE(fifteen_minute_ewma_test){
 	moving_average ewma(std::chrono::minutes(15),std::chrono::seconds(5));
-    ewma.mark(3);
-    ewma.tick();
+    ewma.tick(3);
 
     BOOST_CHECK_CLOSE(ewma.rate(std::chrono::seconds(1)),0.6, 1e-6);
 

@@ -1,5 +1,7 @@
 #include <chrono>
 #include <thread>
+#include <boost/noncopyable.hpp> 
+
 namespace metrics{
 	namespace instruments {
 #ifndef _WIN32
@@ -8,7 +10,7 @@ namespace metrics{
 		#define metrics_hint_likely(x) x
 #endif
 		template<typename ClockType = std::chrono::high_resolution_clock>
-		class scoped_timer{
+		class scoped_timer : public boost::noncopyable{
 		public:
 
 			typedef typename ClockType::time_point time_point;
@@ -29,8 +31,8 @@ namespace metrics{
 
 
 			inline void start(){
-				m_start = m_clock.now();
 				m_running = true;
+				m_start = m_clock.now();
 			}
 
 			inline void stop(){
@@ -42,9 +44,21 @@ namespace metrics{
 				if(metrics_hint_likely(m_running)){
 					stop();
 				}
-				m_record(m_period);
+				if (metrics_hint_likely(m_record)){
+					m_record(m_period);
+				}
 			}
-
+			
+			inline scoped_timer(scoped_timer<ClockType>&& other)
+				: m_clock(std::move(other.m_clock))
+				, m_period(std::move(other.m_period))
+				, m_record(std::move(other.m_record))
+				, m_running(std::move(other.m_running))
+				, m_start(std::move(other.m_start))
+			{
+				other.m_record = nullptr;
+			}
+		private:
 			ClockType m_clock;
 			duration m_period;
 			std::function<void(const duration&)> m_record;

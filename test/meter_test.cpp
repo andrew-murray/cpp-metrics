@@ -32,12 +32,9 @@ namespace mock{
 			}
 		}
 
-		void tick(){
+		void tick(const unsigned int& count){
+			m_mark_count += count;
 			++m_tick_count;
-		}
-
-		void mark(unsigned int n = 1){
-			m_mark_count += n;
 		}
 
 		template<typename Duration = std::chrono::minutes>
@@ -92,10 +89,6 @@ BOOST_AUTO_TEST_CASE(meter_rate_test){
 	BOOST_CHECK_CLOSE(m.mean_rate(),1,1e-8);
 }
 
-
-
-
-
 BOOST_AUTO_TEST_CASE(meter_ticker_test){
 	using mock::ticker;
 
@@ -129,38 +122,30 @@ BOOST_AUTO_TEST_CASE(meter_ticker_test){
 
 	m.mark(5);
 
-	BOOST_CHECK_EQUAL(ticker_1.count(),5);
-	BOOST_CHECK_EQUAL(ticker_5.count(),5);
-	BOOST_CHECK_EQUAL(ticker_15.count(),5);
+	BOOST_CHECK_EQUAL(ticker_1.count(),0);
+	BOOST_CHECK_EQUAL(ticker_5.count(),0);
+	BOOST_CHECK_EQUAL(ticker_15.count(),0);
 	BOOST_CHECK_EQUAL(ticker_1.ticks(),0);
 	BOOST_CHECK_EQUAL(ticker_5.ticks(),0);
 	BOOST_CHECK_EQUAL(ticker_15.ticks(),0);
 
 	mock::clock::set_time(5);
+	
+	// regardless of implementation
+	// getting the latest value
+	// has to flush ticks
+	double r = m.one_minute_rate();
 
 	BOOST_CHECK_EQUAL(ticker_1.count(),5);
 	BOOST_CHECK_EQUAL(ticker_5.count(),5);
 	BOOST_CHECK_EQUAL(ticker_15.count(),5);
-	BOOST_CHECK_EQUAL(ticker_1.ticks(),0);
-	BOOST_CHECK_EQUAL(ticker_5.ticks(),0);
-	BOOST_CHECK_EQUAL(ticker_15.ticks(),0);
-
-	// regardless of implementation
-	// marking & getting the latest value
-	// has to flush ticks
-	m.mark(5);
-	double r = m.one_minute_rate();
-
-	BOOST_CHECK_EQUAL(ticker_1.count(),10);
-	BOOST_CHECK_EQUAL(ticker_5.count(),10);
-	BOOST_CHECK_EQUAL(ticker_15.count(),10);
 	BOOST_CHECK_EQUAL(ticker_1.ticks(),1);
 	BOOST_CHECK_EQUAL(ticker_5.ticks(),1);
 	BOOST_CHECK_EQUAL(ticker_15.ticks(),1);
 
+	m.mark(95);
 	mock::clock::set_time(100);
 
-	m.mark(90);
 	r = m.fifteen_minute_rate();
 
 
@@ -173,37 +158,34 @@ BOOST_AUTO_TEST_CASE(meter_ticker_test){
 
 	mock::clock::set_time(104);
 	m.mark(1);
-	r = m.fifteen_minute_rate();
-
-	BOOST_CHECK_EQUAL(ticker_1.count(),101);
-	BOOST_CHECK_EQUAL(ticker_5.count(),101);
-	BOOST_CHECK_EQUAL(ticker_15.count(),101);
-	BOOST_CHECK_EQUAL(ticker_1.ticks(),20);
-	BOOST_CHECK_EQUAL(ticker_5.ticks(),20);
-	BOOST_CHECK_EQUAL(ticker_15.ticks(),20);
-
 	mock::clock::set_time(105);
 	m.mark(1);
 	r = m.fifteen_minute_rate();
 
-
-	BOOST_CHECK_EQUAL(ticker_1.count(),102);
-	BOOST_CHECK_EQUAL(ticker_5.count(),102);
-	BOOST_CHECK_EQUAL(ticker_15.count(),102);
+	// test the extra unit didn't get included in the previous interval
+	BOOST_CHECK_EQUAL(ticker_1.count(),101);
+	BOOST_CHECK_EQUAL(ticker_5.count(),101);
+	BOOST_CHECK_EQUAL(ticker_15.count(),101);
 	BOOST_CHECK_EQUAL(ticker_1.ticks(),21);
 	BOOST_CHECK_EQUAL(ticker_5.ticks(),21);
 	BOOST_CHECK_EQUAL(ticker_15.ticks(),21);
 
-}
+	mock::clock::set_time(110);
+	r = m.fifteen_minute_rate();
 
-void wait_for(const std::function<bool(void)>& func){
-    do {
-        std::this_thread::yield();
-    } while (!func());
+	// test the extra unit didn't get forgotten
+	BOOST_CHECK_EQUAL(ticker_1.count(), 102);
+	BOOST_CHECK_EQUAL(ticker_5.count(), 102);
+	BOOST_CHECK_EQUAL(ticker_15.count(), 102);
+	BOOST_CHECK_EQUAL(ticker_1.ticks(), 22);
+	BOOST_CHECK_EQUAL(ticker_5.ticks(), 22);
+	BOOST_CHECK_EQUAL(ticker_15.ticks(), 22);
+
+
+
 }
 
 BOOST_AUTO_TEST_CASE(meter_ewma_test){
-
 	mock::clock::set_time(0);
 	metrics::instruments::clocked_meter<mock::clock> m;
 	// mean_rate returns nan
@@ -222,10 +204,11 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 	bool terminate = false;
 	auto force_count = [&terminate,&m](std::atomic<int>& time){
 		while(!terminate){
-			if(time != mock::clock::time()){
-				int diff = mock::clock::time() - time;
+			int local_time = mock::clock::time();
+			if(time != local_time){
+				int diff = local_time - time;
 				m.mark(5 * diff);
-				time = (int)mock::clock::time();
+				time = (int)local_time;
 			}
 		}
 	};
@@ -272,10 +255,14 @@ BOOST_AUTO_TEST_CASE(meter_ewma_test){
 
 	marker_0.join();
 	marker_1.join();
-	
+
 	mock::clock::set_time(5);
 
-
+	BOOST_CHECK_EQUAL(time_0, 4);
+	BOOST_CHECK_EQUAL(time_1, 4);
+	BOOST_CHECK_EQUAL(m.count(), count_before_interval);
+	BOOST_CHECK_EQUAL(mock::clock::time(), 5);
+	BOOST_CHECK_EQUAL(m.mean_rate(), count_before_interval / (double)mock::clock::time());
 	BOOST_CHECK_EQUAL(m.one_minute_rate(),(count_before_interval / mock::clock::time()) * 60);
 	BOOST_CHECK_EQUAL(m.five_minute_rate(),(count_before_interval / mock::clock::time()) * 60);
 	BOOST_CHECK_EQUAL(m.fifteen_minute_rate(),(count_before_interval / mock::clock::time()) * 60);
