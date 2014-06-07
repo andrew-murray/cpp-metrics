@@ -9,12 +9,13 @@ find_package(Boost COMPONENTS system unit_test_framework chrono thread serializa
 
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
-AUX_SOURCE_DIRECTORY(src METRICS_SRC)
-message(STATUS ${METRICS_SRC})
+file(GLOB_RECURSE METRICS_H src "*.h")
+file(GLOB_RECURSE METRICS_HPP src "*.hpp")
+file(GLOB_RECURSE METRICS_CPP rc "*.cpp")
 
 AUX_SOURCE_DIRECTORY(test METRICS_TEST)
 
-ADD_LIBRARY(metrics ${METRICS_SRC})
+ADD_LIBRARY(metrics ${METRICS_H} ${METRICS_CPP} ${METRICS_HPP})
 TARGET_LINK_LIBRARIES(metrics ${Boost_LIBRARIES})
 
 INCLUDE_DIRECTORIES(src)
