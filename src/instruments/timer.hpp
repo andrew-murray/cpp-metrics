@@ -16,7 +16,8 @@ namespace metrics{
 
 			template<typename T>
 			void time(T&& func){
-				auto& local_timer = time_scope();
+				// Kind've counting on the copy being elided
+				auto local_timer = time_scope();
 				// explicitly starting means that we don't include time
 				// the move constructor in the call
 				// this should be documented on the class

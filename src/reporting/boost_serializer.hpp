@@ -14,7 +14,7 @@ namespace metrics {
 		template<typename ArchiveType,typename StreamType = std::ofstream>
 		class regular_boost_reporter {
 		public:
-			template <typename T = std::chrono::seconds, typename = typename std::enable_if<std::is_same<StreamType,std::ofstream>::value>::type>
+			template <typename T = std::chrono::seconds>
 		  	regular_boost_reporter(const std::string& filename, metrics::registry& reg,const T& interval = std::chrono::seconds(20))
 		  	: m_registry(reg)
 		  	, m_stream(utils::make_unique<std::ofstream>(filename))
